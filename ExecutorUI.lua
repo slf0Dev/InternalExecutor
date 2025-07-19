@@ -3,7 +3,7 @@ local Mouse = game.Players.LocalPlayer:GetMouse();
 local PlayerGui = game.Players.LocalPlayer.PlayerGui;
 local InputService = game:GetService("UserInputService");
 
-local Themes = require(game:HttpGet("https://raw.githubusercontent.com/uratr/ExecutorUI/main/Themes.lua"))
+local Themes = loadstring(game:HttpGet("https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/Themes.lua"))()
 
 local UI = {
     Instances = {},
@@ -120,15 +120,23 @@ function Create(instance : string,properties : table)
     local Stroke
 	if instance == "TextButton" or instance == "ImageButton" then
 		CreatedInstance.AutoButtonColor = false
-	end
-
-    if HasProperty(CreatedInstance,"BorderSizePixel") then
+    end
+        
+        if HasProperty(CreatedInstance,"BorderSizePixel") then
         CreatedInstance.BorderSizePixel = 0
     end
 
 	for property,value in next,properties do
-		if tostring(property) ~= "CornerRadius" and tostring(property) ~= "Stroke" and tostring(property) ~= "BoxShadow" then
+		if tostring(property) ~= "CornerRadius" and tostring(property) ~= "Stroke" and tostring(property) ~= "BoxShadow" and tostring(property) ~= "Padding" then
 			CreatedInstance[property] = value
+        elseif tostring(property) == "Padding" then
+            local Padding = Instance.new("UIPadding",CreatedInstance)
+            Padding.Name = "Padding"
+            Padding.PaddingTop = UDim.new(0, value['Top'] or 0)
+            Padding.PaddingBottom = UDim.new(0, value['Bottom'] or 0)
+            Padding.PaddingLeft = UDim.new(0, value['Left'] or 0)
+            Padding.PaddingRight = UDim.new(0, value['Right'] or 0)
+
 		elseif tostring(property) == "Stroke" then
 			StrokeProperties = {
 				Color = value['Color'],
@@ -257,7 +265,13 @@ function UI.CreateWindow(parameters : table)
         Position = UDim2.new(0.5, 0, 0.5, 0),
         BackgroundColor3 = UI.Theme.Background,
         BorderSizePixel = 0,
-        Parent = Screengui
+        Parent = Screengui,
+        Padding = {
+            Top = 16,
+            Bottom = 16,
+            Left = 16,
+            Right = 16
+        }
     })
 
     local TitleBar = Create("Frame", {
@@ -270,9 +284,9 @@ function UI.CreateWindow(parameters : table)
 
     local TitleText = Create("TextLabel", {
         Name = "TitleText",
-        Size = UDim2.new(1, -16, 0, 0),
+        Size = UDim2.new(1, 0, 0, 0),
         AutomaticSize = Enum.AutomaticSize.Y,
-        Position = UDim2.new(0, 16, 0, 8),
+        Position = UDim2.new(0, 0, 0, 0),
         BackgroundTransparency = 1,
         TextColor3 = UI.Theme.Text,
         TextSize = 28,
@@ -287,6 +301,83 @@ function UI.CreateWindow(parameters : table)
     return Window
 end
 
-UI.CreateWindow({
+function UI.InitCodeEditor(parameters : table)
+    local Editor = {
+        Tabs = {},
+        ActiveTab = nil,
+    }
+    local CodeEditor = Create("Frame", {
+        Name = "CodeEditor",
+        Size = UDim2.new(1, 0, 1, -60),
+        Position = UDim2.new(0, 0, 0, 40),
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        Parent = parameters.Parent,
+        Padding = {
+            Top = 8,
+            Bottom = 8,
+            Left = 0,
+            Right = 0
+        }
+    })
+
+    local TabsNavigation = Create("Frame", {
+        Name = "TabsNavigation",
+        Size = UDim2.new(1, 0, 0, 40),
+        BackgroundColor3 = UI.Theme.SecondaryBackground,
+        BorderSizePixel = 0,
+        Parent = CodeEditor
+    })
+
+    Editor.AddTab = function(tabName, TabContent)
+        local TabButton = Create("TextButton", {
+            Name = tabName,
+            Size = UDim2.new(0, 100, 1, 0),
+            BackgroundColor3 = UI.Theme.Accent,
+            TextColor3 = UI.Theme.Text,
+            TextSize = 18,
+            Text = tabName,
+            FontFace = UI.Theme.Fonts.Regular,
+            Parent = TabsNavigation
+        })
+
+        TabButton.MouseButton1Click:Connect(function()
+            if Editor.ActiveTab then
+                Editor.ActiveTab.BackgroundColor3 = UI.Theme.Light
+            end
+            Editor.ActiveTab = TabButton
+            TabButton.BackgroundColor3 = UI.Theme.Primary
+        end)
+
+        table.insert(Editor.Tabs, TabButton)
+    end
+
+    local CodeTextBox = Create("TextBox", {
+        Name = "CodeTextBox",
+        Size = UDim2.new(1, -20, 1, -40),
+        Position = UDim2.new(0, 16, 0, 48),
+        BackgroundTransparency = 1,
+        TextColor3 = UI.Theme.Text,
+        TextSize = 20,
+        Text = 'print("Hello, World!")',
+        FontFace = UI.Theme.Fonts.Regular,
+        MultiLine = true,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextYAlignment = Enum.TextYAlignment.Top,
+        ClearTextOnFocus = false,
+        Parent = CodeEditor
+    })
+
+    Editor.AddTab("Main", CodeTextBox)
+    return CodeEditor
+end
+
+
+
+local Editor = UI.CreateWindow({
     Title = "Code"
+})
+
+UI.InitCodeEditor({
+    Parent = Editor
 })
