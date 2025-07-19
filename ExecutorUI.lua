@@ -127,9 +127,9 @@ function Create(instance : string,properties : table)
     end
 
 	for property,value in next,properties do
-		if tostring(property) ~= "CornerRadius" and tostring(property) ~= "Stroke" and tostring(property) ~= "BoxShadow" and tostring(property) ~= "Padding" then
+		if tostring(property) ~= "CornerRadius" and tostring(property) ~= "Stroke" and tostring(property) ~= "BoxShadow" and tostring(property) ~= "Pad" then
 			CreatedInstance[property] = value
-        elseif tostring(property) == "Padding" then
+        elseif tostring(property) == "Pad" then
             local Padding = Instance.new("UIPadding",CreatedInstance)
             Padding.Name = "Padding"
             Padding.PaddingTop = UDim.new(0, value['Top'] or 0)
@@ -266,7 +266,7 @@ function UI.CreateWindow(parameters : table)
         BackgroundColor3 = UI.Theme.Background,
         BorderSizePixel = 0,
         Parent = Screengui,
-        Padding = {
+        Pad = {
             Top = 16,
             Bottom = 16,
             Left = 16,
@@ -313,7 +313,7 @@ function UI.InitCodeEditor(parameters : table)
         BackgroundTransparency = 1,
         BorderSizePixel = 0,
         Parent = parameters.Parent,
-        Padding = {
+        Pad = {
             Top = 8,
             Bottom = 8,
             Left = 0,
@@ -329,11 +329,31 @@ function UI.InitCodeEditor(parameters : table)
         Parent = CodeEditor
     })
 
+    local TabsListLayout = Create("UIListLayout", {
+        Name = "TabsListLayout",
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        FillDirection = Enum.FillDirection.Horizontal,
+        Padding = UDim.new(0, 10),
+        Parent = TabsNavigation
+    })
+
+    Editor.UpdateTabs = function()
+        for _, tab in pairs(Editor.Tabs) do
+            if tab.Instance ~= Editor.ActiveTab.Instance then
+                Tween(tab.Instance, 0.2, {TextColor3 = UI.Theme.Text}, "Quad", "Out")
+            end
+        end
+
+        if Editor.ActiveTab then
+            Tween(Editor.ActiveTab.Instance, 0.2, {TextColor3 = UI.Theme.Accent}, "Quad", "Out")
+        end
+    end
+
     Editor.AddTab = function(tabName, TabContent)
         local TabButton = Create("TextButton", {
             Name = tabName,
             Size = UDim2.new(0, 100, 1, 0),
-            BackgroundColor3 = UI.Theme.Accent,
+            BackgroundTransparency = 1,
             TextColor3 = UI.Theme.Text,
             TextSize = 18,
             Text = tabName,
@@ -341,15 +361,16 @@ function UI.InitCodeEditor(parameters : table)
             Parent = TabsNavigation
         })
 
+        Editor.Tabs[tabName] = {
+            Instance = TabButton,
+            Content = TabContent,
+        }
+
         TabButton.MouseButton1Click:Connect(function()
-            if Editor.ActiveTab then
-                Editor.ActiveTab.BackgroundColor3 = UI.Theme.Light
-            end
-            Editor.ActiveTab = TabButton
-            TabButton.BackgroundColor3 = UI.Theme.Primary
+            Editor.ActiveTab = Editor.Tabs[tabName]
+            Editor.UpdateTabs()
         end)
 
-        table.insert(Editor.Tabs, TabButton)
     end
 
     local CodeTextBox = Create("TextBox", {
@@ -368,7 +389,8 @@ function UI.InitCodeEditor(parameters : table)
         Parent = CodeEditor
     })
 
-    Editor.AddTab("Main", CodeTextBox)
+    Editor.AddTab("Tab 1", CodeTextBox)
+    Editor.AddTab("Tab 2", "--Nothing here")
     return CodeEditor
 end
 

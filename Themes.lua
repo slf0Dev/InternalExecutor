@@ -1,11 +1,11 @@
 local Themes = {}
 
 Themes.LightDefault = {
-    Primary = Color3.fromRGB(100, 150, 255),  -- blue
+    Accent = Color3.fromRGB(100, 150, 255),  -- blue
     Secondary = Color3.fromRGB(255, 120, 200),  -- pink
     Success = Color3.fromRGB(120, 255, 150),  -- green
     Danger = Color3.fromRGB(255, 100, 100),  -- red
-    Accent = Color3.fromRGB(255, 180, 100),  -- accent
+    Warning = Color3.fromRGB(255, 180, 100),  -- accent
     Dark = Color3.fromRGB(40, 40, 50),  -- dark color
     Light = Color3.fromRGB(240, 240, 250),  -- light color
     Background = Color3.fromRGB(230,230,230),  -- background
