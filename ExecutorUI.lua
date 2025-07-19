@@ -3,10 +3,11 @@ local Mouse = game.Players.LocalPlayer:GetMouse();
 local PlayerGui = game.Players.LocalPlayer.PlayerGui;
 local InputService = game:GetService("UserInputService");
 
-local Themes = loadstring(game:HttpGet("https://raw.githubusercontent.com/uratr/ExecutorUI/main/Themes.lua"))()
+local Themes = require(game:HttpGet("https://raw.githubusercontent.com/uratr/ExecutorUI/main/Themes.lua"))
 
 local UI = {
     Instances = {},
+    Theme = Themes.LightDefault,
 }
 
 local function Observable(initialValue)

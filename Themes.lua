@@ -18,6 +18,6 @@ Themes.LightDefault = {
         Bold = Font.fromName("Cairo",Enum.FontWeight.Bold, Enum.FontStyle.Normal),  -- bold font
         Regular = Font.fromName("Cairo",Enum.FontWeight.Regular, Enum.FontStyle.Normal),  -- regular font
     },  -- fonts
-},
+}
 
 return Themes;
