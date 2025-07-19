@@ -3,24 +3,11 @@ local Mouse = game.Players.LocalPlayer:GetMouse();
 local PlayerGui = game.Players.LocalPlayer.PlayerGui;
 local InputService = game:GetService("UserInputService");
 
+local Themes = loadstring(game:HttpGet("https://raw.githubusercontent.com/uratr/ExecutorUI/main/Themes.lua"))()
 
 local UI = {
     Instances = {},
-    Theme = {
-        Primary = Color3.fromRGB(100, 150, 255),  -- Голубой
-        Secondary = Color3.fromRGB(255, 120, 200),  -- Розовый
-        Success = Color3.fromRGB(120, 255, 150),  -- Зелёный
-        Danger = Color3.fromRGB(255, 100, 100),  -- Красный
-        Warning = Color3.fromRGB(255, 180, 100),  -- Оранжевый
-        Dark = Color3.fromRGB(40, 40, 50),  -- Тёмный
-        Light = Color3.fromRGB(240, 240, 250),  -- Светлый
-        Background = Color3.fromRGB(25, 25, 35),  -- Фон
-        Card = Color3.fromRGB(35, 35, 45),  -- Карточки
-        Text = Color3.fromRGB(240, 240, 250),  -- Основной текст
-        SubText = Color3.fromRGB(180, 180, 190),  -- Второстепенный текст
-
-        Font = Font.fromId(12187377099)
-    },
+    Theme = 
 }
 
 local function Observable(initialValue)
@@ -262,34 +249,35 @@ local Screengui = Create("ScreenGui", {
 
 
 
-function UI.CreateWindow()
+function UI.CreateWindow(parameters : table)
     local Window = Create("Frame", {
         Name = "Window",
         AnchorPoint = Vector2.new(0.5, 0.5),
         Size = UDim2.new(0, 650, 0, 450),
         Position = UDim2.new(0.5, 0, 0.5, 0),
-        BackgroundColor3 = Color3.fromRGB(30, 30, 30),
+        BackgroundColor3 = UI.Theme.Background,
         BorderSizePixel = 0,
-        ZIndex = 10,
         Parent = Screengui
     })
 
     local TitleBar = Create("Frame", {
         Name = "TitleBar",
         Size = UDim2.new(1, 0, 0, 30),
-        BackgroundColor3 = Color3.fromRGB(50, 50, 50),
+        BackgroundTransparency = 1,
         BorderSizePixel = 0,
         Parent = Window,
     })
 
     local TitleText = Create("TextLabel", {
         Name = "TitleText",
-        Size = UDim2.new(1, -10, 1, -10),
-        Position = UDim2.new(0, 5, 0, 5),
+        Size = UDim2.new(1, -16, 0, 0),
+        AutomaticSize = Enum.AutomaticSize.Y,
+        Position = UDim2.new(0, 16, 0, 8),
         BackgroundTransparency = 1,
-        TextColor3 = Color3.fromRGB(255, 255, 255),
-        TextSize = 18,
-        FontFace = UI.Theme.Font,
+        TextColor3 = UI.Theme.Text,
+        TextSize = 28,
+        Text = parameters.Title,
+        FontFace = UI.Theme.Fonts.Bold,
         TextXAlignment = Enum.TextXAlignment.Left,
         Parent = TitleBar,
     })
@@ -299,4 +287,6 @@ function UI.CreateWindow()
     return Window
 end
 
-UI.CreateWindow()
+UI.CreateWindow({
+    Title = "Code"
+})
