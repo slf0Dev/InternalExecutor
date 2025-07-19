@@ -7,7 +7,6 @@ local Themes = loadstring(game:HttpGet("https://raw.githubusercontent.com/uratr/
 
 local UI = {
     Instances = {},
-    Theme = 
 }
 
 local function Observable(initialValue)
