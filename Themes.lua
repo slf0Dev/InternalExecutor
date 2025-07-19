@@ -1,7 +1,7 @@
 local Themes = {}
 
 Themes.LightDefault = {
-    Accent = Color3.fromRGB(100, 150, 255),  -- blue
+    Accent = Color3.fromRGB(60, 119, 247),  -- blue
     Secondary = Color3.fromRGB(255, 120, 200),  -- pink
     Success = Color3.fromRGB(120, 255, 150),  -- green
     Danger = Color3.fromRGB(255, 100, 100),  -- red

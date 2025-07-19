@@ -365,12 +365,13 @@ function UI.InitCodeEditor(parameters : table)
             Instance = TabButton,
             Content = TabContent,
         }
+        Editor.ActiveTab = Editor.Tabs[tabName]
 
         TabButton.MouseButton1Click:Connect(function()
             Editor.ActiveTab = Editor.Tabs[tabName]
             Editor.UpdateTabs()
         end)
-
+        Editor.UpdateTabs()
     end
 
     local CodeTextBox = Create("TextBox", {
