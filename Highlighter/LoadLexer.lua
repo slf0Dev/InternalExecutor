@@ -7,10 +7,12 @@ local dependencies = {
 local Repository = "https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/"
 
 local root = Instance.new("ModuleScript")
-root.Name = "IDE_Sripped"
+root.Parent = workspace
+root.Name = "IDE_Stripped"
 
 local main = Instance.new("ModuleScript")
 main.Name = "HighlighterModule"
+main.Parent = root
 
 for i,v in next, dependencies do
     local name = v:split("/")[2]
@@ -23,7 +25,6 @@ end
 main.Parent = root
 main.Source = game:HttpGet(Repository.."Highlighter/HighlighterModule.lua")
 
-root.Parent = workspace
 root.Source = game:HttpGet(Repository.."Highlighter/IDE_STRIPPED.lua")
 
 task.wait(0.1)
