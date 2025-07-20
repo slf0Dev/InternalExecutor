@@ -9,7 +9,7 @@ local DEFAULT_TOKEN_COLORS = {
 	["operator"] = Color3.fromRGB(255, 239, 148),
 	["custom"] = Color3.fromRGB(119, 122, 255),
 }
-local Repository = "https://github.com/slf0Dev/InternalExecutor/tree/master/"
+local Repository = "https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/"
 local types = loadstring(
 	game:HttpGet(Repository .. "Lexer/Types.lua", true)
 )()

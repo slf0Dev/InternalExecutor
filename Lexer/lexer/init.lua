@@ -48,7 +48,7 @@ local COMMENT_MULTI_INCOMP = "%-%-%[=*%[.-.*" --Incompleted Multiline-Comment
 local COMMENT_PLAIN = "%-%-.-\n" --Completed Singleline-Comment
 local COMMENT_INCOMP = "%-%-.*" --Incompleted Singleline-Comment
 -- local TYPED_VAR = ":%s*([%w%?%| \t]+%s*)" --Typed variable, parameter, function
-local Repository = "https://github.com/slf0Dev/InternalExecutor/tree/master/"
+local Repository = "https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/"
 
 local lang = loadstring(
 	game:HttpGet(Repository .. "Lexer/lexer/Language.lua", true)

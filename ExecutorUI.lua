@@ -3,10 +3,10 @@ local Mouse = game.Players.LocalPlayer:GetMouse();
 local PlayerGui = game.Players.LocalPlayer.PlayerGui;
 local InputService = game:GetService("UserInputService");
 
-local Repository = "https://github.com/slf0Dev/InternalExecutor/tree/master/";
+local Repository = "https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/"
 
 local Themes = loadstring(game:HttpGet(Repository.."Themes.lua"))()
-local Lexer = loadstring(game:HttpGet(Repository.."Lexer/Lexer.lua"))()
+local Lexer = loadstring(game:HttpGet(Repository.."Lexer/init.lua"))()
 
 
 local UI = {
@@ -378,7 +378,9 @@ function UI.InitCodeEditor(parameters : table)
             Right = 10
         }
     })
-
+    Lexer.highlight({
+        CodeTextBox,
+    })
 
     local function ensureDirectory()
         if not isfolder("OceriumExec") then
