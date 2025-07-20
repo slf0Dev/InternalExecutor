@@ -15,7 +15,6 @@ function IDEModule.new(ParentFrame)
 
 	local TextSize = 16
 
-	local Theme = settings().Studio.Theme
 
 	local Scroller = Instance.new("ScrollingFrame")
 
@@ -25,7 +24,7 @@ function IDEModule.new(ParentFrame)
 	Scroller.BorderSizePixel			= 0
 	Scroller.BottomImage				= Scroller.MidImage
 	Scroller.TopImage					= Scroller.MidImage
-	Scroller.ScrollBarImageColor3		= Theme:GetColor(Enum.StudioStyleGuideColor.ScrollBar):Lerp(Color3.new(1,1,1),0.2)
+	Scroller.ScrollBarImageColor3		= Color3.fromRGB(0,0,0)
 	Scroller.ScrollBarThickness			= math.ceil(TextSize*0.75)
 	Scroller.VerticalScrollBarInset		= Enum.ScrollBarInset.ScrollBar
 	Scroller.HorizontalScrollBarInset	= Enum.ScrollBarInset.ScrollBar
@@ -47,7 +46,7 @@ function IDEModule.new(ParentFrame)
 	Input.Text						= ""
 	Input.BorderSizePixel			= 0
 	Input.Font						= Enum.Font.Code
-	Input.TextColor3				= Theme:GetColor(Enum.StudioStyleGuideColor.ScriptText):Lerp(Scroller.BackgroundColor3, 0.3)
+	Input.TextColor3				= Color3.fromRGB(0,0,0)
 	Input.TextXAlignment			= Enum.TextXAlignment.Left
 	Input.TextYAlignment			= Enum.TextYAlignment.Top
 	Input.Active					= false
@@ -75,7 +74,7 @@ function IDEModule.new(ParentFrame)
 	LineMarker.LayoutOrder				= 1
 	LineMarker.TextSize					= TextSize
 	LineMarker.Font						= Enum.Font.Code
-	LineMarker.TextColor3				= Theme:GetColor(Enum.StudioStyleGuideColor.ScriptText)
+	LineMarker.TextColor3				= Color3.fromRGB(0,0,0)
 	LineMarker.TextXAlignment			= Enum.TextXAlignment.Right
 	LineMarker.Size						= UDim2.new(1,0,0,TextSize)
 	LineMarker.Text						= "1 "
@@ -172,24 +171,6 @@ function IDEModule.new(ParentFrame)
 	end)
 
 	Scroller.Parent = ParentFrame
-
-
-	settings().Studio.ThemeChanged:Connect(function()
-		Theme = settings().Studio.Theme
-
-		Highlighter:ReloadColors(Input)
-
-		Scroller.BackgroundColor3		= Theme:GetColor(Enum.StudioStyleGuideColor.ScriptBackground)
-		Scroller.ScrollBarImageColor3	= Theme:GetColor(Enum.StudioStyleGuideColor.ScrollBar):Lerp(Color3.new(1,1,1),0.2)
-		Input.TextColor3				= Theme:GetColor(Enum.StudioStyleGuideColor.ScriptPreprocessor):Lerp(Scroller.BackgroundColor3, 0.3)
-
-		local TextColor = Theme:GetColor(Enum.StudioStyleGuideColor.ScriptText)
-		for _,LineMarker in pairs(Lines:GetChildren()) do
-			if LineMarker:IsA("TextLabel") then
-				LineMarker.TextColor3 = TextColor
-			end
-		end
-	end)
 
 	function IDE:SetContent(Content)
 		Highlighter:ClearCache(Input)
