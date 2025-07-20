@@ -3,7 +3,7 @@ local Repository = "https://raw.githubusercontent.com/slf0Dev/InternalExecutor/r
 
 local TS = game:GetService("TextService")
 local RS = game:GetService("RunService")
-local Highlighter = loadstring(game:HttpGet(Repository.. "Highlighter.lua"))()
+local Highlighter = loadstring(game:HttpGet(Repository.. "Highlighter/HighlighterModule.lua"))()
 
 -- Weird Luau VM optimizations
 local ipairs	= ipairs

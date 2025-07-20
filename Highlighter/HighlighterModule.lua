@@ -41,8 +41,8 @@ local Player	= game:GetService("Players").LocalPlayer
 
 local RS		= game:GetService("RunService")
 
-local Lexer			= loadstring(game:HttpGet(Repository.. "lexer.lua")())
-local ObjectPool	= loadstring(game:HttpGet(Repository.. "ObjectPool.lua")())
+local Lexer			= loadstring(game:HttpGet(Repository.. "Highlighter/lexer.lua"))()
+local ObjectPool	= loadstring(game:HttpGet(Repository.. "Highlighter/ObjectPool.lua"))()
 
 local ipairs	= ipairs
 
