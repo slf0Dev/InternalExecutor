@@ -1,39 +1,31 @@
 
 local dependencies = {
-    "Highlighter/types.lua",
-    "Highlighter/theme.lua",
-    "Highlighter/utility.lua",
+    "Highlighter/ObjectPool.lua",
+    "Highlighter/lexer.lua",
 }
 
 local Repository = "https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/"
 
 local root = Instance.new("ModuleScript")
-root.Name = "Highlighter"
+root.Name = "IDE_Sripped"
+
+local main = Instance.new("ModuleScript")
+main.Name = "HighlighterModule"
 
 for i,v in next, dependencies do
     local name = v:split("/")[2]
     local Dependency = Instance.new("ModuleScript")
     Dependency.Source = game:HttpGet(Repository..v)
     Dependency.Name = name:split(".")[1]
-    Dependency.Parent = root
+    Dependency.Parent = main
 end
 
-local lexer = Instance.new("ModuleScript")
-lexer.Name = "lexer"
-lexer.Source = game:HttpGet(Repository.."Highlighter/lexer.lua")
-lexer.Parent = root
-
-
-local language = Instance.new("ModuleScript")
-language.Name = "language"
-language.Source = game:HttpGet(Repository.."Highlighter/language.lua")
-language.Parent = lexer
-
 root.Parent = workspace
-root.Source = game:HttpGet(Repository.."Highlighter/init.lua")
+root.Source = game:HttpGet(Repository.."Highlighter/IDE_STRIPPED.lua")
 
+main.Parent = root
+main.Source = game:HttpGet(Repository.."Highlighter/HighlighterModule.lua")
 
 
 local Highlighter = loadstring(root.Source)()
 
-return Highlighter;
