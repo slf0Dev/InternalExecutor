@@ -6,8 +6,8 @@ local InputService = game:GetService("UserInputService");
 local Repository = "https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/"
 
 local Themes = loadstring(game:HttpGet(Repository.."Themes.lua"))()
-local Lexer = loadstring(game:HttpGet(Repository.."lexer/LoadLexer.lua"))()
-
+local Lexer = loadstring(game:HttpGet(Repository.."Highlighter/LoadLexer.lua"))()
+print(Lexer.Source)
 
 local UI = {
     Instances = {},
@@ -378,7 +378,7 @@ function UI.InitCodeEditor(parameters : table)
             Right = 10
         }
     })
-    Lexer.highlight({
+    Highlighter.highlight({
         CodeTextBox,
     })
 

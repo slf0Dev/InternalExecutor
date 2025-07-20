@@ -19,15 +19,16 @@ for i,v in next, dependencies do
 end
 
 local lexer = Instance.new("ModuleScript")
-lexer.Name = "Lexer"
+lexer.Name = "lexer"
 lexer.Source = game:HttpGet(Repository.."Highlighter/lexer.lua")
 lexer.Parent = root
 
 
 local language = Instance.new("ModuleScript")
-language.Name = "Language"
+language.Name = "language"
 language.Source = game:HttpGet(Repository.."Highlighter/language.lua")
 language.Parent = lexer
 
 root.Source = game:HttpGet(Repository.."Highlighter/init.lua")
 
+return root
