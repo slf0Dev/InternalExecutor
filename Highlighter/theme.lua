@@ -61,6 +61,7 @@ function Theme.matchStudioSettings(refreshCallback: () -> ()): boolean
             refreshCallback()
 		end)
 	end)
+	print'd'
 	return success
 end
 

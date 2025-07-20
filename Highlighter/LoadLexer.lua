@@ -1,6 +1,5 @@
 
 local dependencies = {
-    "Highlighter/lexer.lua",
     "Highlighter/types.lua",
     "Highlighter/theme.lua",
     "Highlighter/utility.lua",
@@ -30,7 +29,8 @@ language.Name = "language"
 language.Source = game:HttpGet(Repository.."Highlighter/language.lua")
 language.Parent = lexer
 
+root.Parent = workspace
 root.Source = game:HttpGet(Repository.."Highlighter/init.lua")
 
 
-return root
+local hightlighter = require(root)
