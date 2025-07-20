@@ -33,4 +33,5 @@ root.Parent = workspace
 root.Source = game:HttpGet(Repository.."Highlighter/init.lua")
 
 
-local hightlighter = require(root)
+
+return root

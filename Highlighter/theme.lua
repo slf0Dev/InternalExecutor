@@ -33,7 +33,6 @@ function Theme.getColor(tokenName: types.TokenName): Color3
 	return Theme.tokenColors[tokenName]
 end
 
-print'd'
 function Theme.matchStudioSettings(refreshCallback: () -> ()): boolean
 	local success = pcall(function()
 		-- When not used in a Studio plugin, this will error
