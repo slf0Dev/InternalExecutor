@@ -6,4 +6,3 @@ local Repository = "https://raw.githubusercontent.com/slf0Dev/InternalExecutor/r
 
 local Highlighter = loadstring(game:HttpGet(Repository.."Highlighter/HighlighterModule.lua"))()
 
-return Highlighter

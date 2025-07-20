@@ -356,30 +356,20 @@ function UI.InitCodeEditor(parameters : table)
         Parent = TabsNavigation
     })
 
-    local CodeTextBox = Create("TextBox", {
+    local CodeTextBox = Create("Frame", {
         Name = "CodeTextBox",
         Size = UDim2.new(1, -20, 1, -40),
         Position = UDim2.new(0, 16, 0, 48),
         BackgroundTransparency = 0,
         BackgroundColor3 = UI.Theme.SecondaryBackground,
-        TextColor3 = UI.Theme.Text,
         CornerRadius = UDim.new(0, 5),
-        TextSize = 20,
-        Text = '',
-        FontFace = UI.Theme.Fonts.Regular,
-        MultiLine = true,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        TextYAlignment = Enum.TextYAlignment.Top,
-        ClearTextOnFocus = false,
         Parent = CodeEditor,
-        Pad = {
-            Top = 10,
-            Bottom = 10,
-            Left = 30,
-            Right = 10
-        }
     })
+    
+    IDE.new(CodeTextBox)
 
+    local InputBox = CodeTextBox:FindFirstChild("Input", true)
+    print(InputBox.Text)
 
     local function ensureDirectory()
         if not isfolder("OceriumExec") then
@@ -403,17 +393,7 @@ function UI.InitCodeEditor(parameters : table)
             end
         end
     end
-    _G.SaveTab = saveTabContent
-    local function loadTabContent(tabName)
-        ensureDirectory()
-        local filePath = getTabFilePath(tabName)
-        if isfile(filePath) then
-            return readfile(filePath)
-        end
-        return ""
-    end
-
-
+    
     local function findExistingTabs()
         ensureDirectory()
         local tabs = {}
@@ -437,7 +417,7 @@ function UI.InitCodeEditor(parameters : table)
 
     local function SwapTab(tabName)
         Editor.ActiveTab = Editor.Tabs[tabName]
-        CodeTextBox.Text = Editor.TabContents[tabName] or ""
+        InputBox.Text = Editor.TabContents[tabName] or ""
         Editor.UpdateTabs()
     end
     
@@ -457,6 +437,7 @@ function UI.InitCodeEditor(parameters : table)
         end
     end)]]
 
+
     Editor.UpdateTabs = function()
         for _, tab in pairs(Editor.Tabs) do
             if tab.Name ~= Editor.ActiveTab.Name then
@@ -468,8 +449,15 @@ function UI.InitCodeEditor(parameters : table)
             Tween(Editor.ActiveTab.Instance, 0.2, {TextColor3 = UI.Theme.Accent}, "Quad", "Out")
         end
     end
-    IDE.new(CodeTextBox)
 
+    _G.Editor = {
+        loadExistingTabs,
+        SwapTab,
+        Editor.UpdateTabs,
+        findExistingTabs,
+        saveTabContent,
+        Editor = Editor
+    }
     
     Editor.AddTab = function(tabName)
         if not tabName then
@@ -543,7 +531,7 @@ function UI.InitCodeEditor(parameters : table)
     AddTabButton.MouseButton1Click:Connect(function()
         local newTab = Editor.AddTab()
         Editor.ActiveTab = newTab.Instance
-        CodeTextBox.Text = ""
+        InputBox.Text = ""
         Editor.TabContents[newTab.Name] = ""
     end)
 

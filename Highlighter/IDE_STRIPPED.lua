@@ -101,8 +101,12 @@ function IDEModule.new(ParentFrame)
 		end
 	end)
 
+	local EditorFuncs = _G.Editor
+	local Editor = EditorFuncs.Editor
 	local PreviousLength = 0
 	Input:GetPropertyChangedSignal("Text"):Connect(function()
+
+		EditorFuncs.saveTabContent(Editor.ActiveTab.Name,Input.Text)
 
 		RS.Heartbeat:Wait() -- Let the changes process first.
 
