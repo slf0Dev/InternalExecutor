@@ -6,7 +6,7 @@ local InputService = game:GetService("UserInputService");
 local Repository = "https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/"
 
 local Themes = loadstring(game:HttpGet(Repository.."Themes.lua"))()
-local Lexer = loadstring(game:HttpGet(Repository.."Highlighter/LoadLexer.lua"))()
+--local Lexer = loadstring(game:HttpGet(Repository.."Highlighter/LoadLexer.lua"))()
 
 local UI = {
     Instances = {},
@@ -378,7 +378,7 @@ function UI.InitCodeEditor(parameters : table)
         }
     })
 
-    Lexer.new(CodeTextBox)
+
 
     local function ensureDirectory()
         if not isfolder("OceriumExec") then
@@ -396,6 +396,11 @@ function UI.InitCodeEditor(parameters : table)
         ensureDirectory()
         Editor.TabContents[tabName] = content
         writefile(getTabFilePath(tabName), content or "")
+        if content == "" then
+            if isfile(getTabFilePath(tabName)) then
+                delfile(getTabFilePath(tabName))
+            end
+        end
     end
 
     local function loadTabContent(tabName)

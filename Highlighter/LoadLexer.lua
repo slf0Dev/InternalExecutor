@@ -15,7 +15,7 @@ main.Name = "HighlighterModule"
 main.Parent = root
 
 _G.Lex = main
-
+_G.Dependencies = {}
 
 for i,v in next, dependencies do
     local name = v:split("/")[2]
@@ -23,6 +23,7 @@ for i,v in next, dependencies do
     Dependency.Source = game:HttpGet(Repository..v)
     Dependency.Name = name:split(".")[1]
     Dependency.Parent = main
+    _G.Dependencies[name] = Dependency
 end
 
 main.Parent = root
