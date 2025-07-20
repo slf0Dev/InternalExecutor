@@ -1,8 +1,9 @@
 local IDEModule = {}
+local Repository = "https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/"
 
 local TS = game:GetService("TextService")
 local RS = game:GetService("RunService")
-local Highlighter = loadstring(_G.Lex.Source)()
+local Highlighter = loadstring(game:HttpGet(Repository.. "Highlighter.lua"))()
 
 -- Weird Luau VM optimizations
 local ipairs	= ipairs

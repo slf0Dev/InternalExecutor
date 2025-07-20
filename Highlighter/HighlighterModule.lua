@@ -35,13 +35,14 @@
 		Clears data saved on that TextObject, and removes all highlighting.
 	
 --]=]
+local Repository = "https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/"
 
 local Player	= game:GetService("Players").LocalPlayer
 
 local RS		= game:GetService("RunService")
 
-local Lexer			= loadstring(_G.Dependencies.lexer.Source)()
-local ObjectPool	= loadstring(_G.Dependencies.objectpool.Source)()
+local Lexer			= loadstring(game:HttpGet(Repository.. "lexer.lua")())
+local ObjectPool	= loadstring(game:HttpGet(Repository.. "ObjectPool.lua")())
 
 local ipairs	= ipairs
 
