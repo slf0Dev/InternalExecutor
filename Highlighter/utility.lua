@@ -1,10 +1,4 @@
-local Repository = "https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/"
-
-local types = Instance.new("ModuleScript")
-types.Name = "Types"
-types.Source = require(
-	game:HttpGet(Repository .. "Lexer/types.lua", true)
-)
+local types = require(script.Parent.types)
 
 local Utility = {}
 

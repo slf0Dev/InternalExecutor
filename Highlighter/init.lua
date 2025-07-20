@@ -1,21 +1,9 @@
-local Repository = "https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/"
-
-
-local utility = loadstring(
-	game:HttpGet(Repository .. "Lexer/utility.lua", true)
-)()
-local theme = loadstring(
-	game:HttpGet(Repository .. "Lexer/theme.lua", true)
-)()
-
-local types = Instance.new("ModuleScript")
-types.Name = "Types"
-types.Source = require(
-	game:HttpGet(Repository .. "Lexer/types.lua", true)
-)
+local types = require(script.types)
+local utility = require(script.utility)
+local theme = require(script.theme)
 
 local Highlighter = {
-	defaultLexer = require(types.Lexer),
+	defaultLexer = require(script.lexer) :: types.Lexer,
 
 	_textObjectData = {} :: { [types.TextObject]: types.ObjectData },
 	_cleanups = {} :: { [types.TextObject]: () -> () },
