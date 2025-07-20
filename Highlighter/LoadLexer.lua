@@ -34,4 +34,4 @@ language.Parent = lexer
 root.Source = game:HttpGet(Repository.."Highlighter/init.lua")
 loader.Lexer = root
 
-return loader.Lexer
+return loader
