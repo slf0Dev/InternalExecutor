@@ -3,7 +3,7 @@ local Mouse = game.Players.LocalPlayer:GetMouse();
 local PlayerGui = game.Players.LocalPlayer.PlayerGui;
 local InputService = game:GetService("UserInputService");
 
-local Themes = loadstring(game:HttpGet("https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/Themes.lua"))()
+local Themes = loadstring(game:HttpGet("https://raw.githubusercontent.com/slf0Dev/InternalExecutor/master/Themes.lua"))()
 
 local UI = {
     Instances = {},
@@ -265,6 +265,7 @@ function UI.CreateWindow(parameters : table)
         Position = UDim2.new(0.5, 0, 0.5, 0),
         BackgroundColor3 = UI.Theme.Background,
         BorderSizePixel = 0,
+        CornerRadius = UDim.new(0, 10),
         Parent = Screengui,
         Pad = {
             Top = 16,
@@ -301,10 +302,16 @@ function UI.CreateWindow(parameters : table)
     return Window
 end
 
+-- ... (предыдущий код остается без изменений до функции UI.InitCodeEditor)
+
+-- ... (предыдущий код остается без изменений до функции UI.InitCodeEditor)
+
 function UI.InitCodeEditor(parameters : table)
     local Editor = {
         Tabs = {},
         ActiveTab = nil,
+        TabContents = {}, -- Хранит содержимое вкладок
+        TabCount = 0, -- Счетчик вкладок
     }
     local CodeEditor = Create("Frame", {
         Name = "CodeEditor",
@@ -324,9 +331,15 @@ function UI.InitCodeEditor(parameters : table)
     local TabsNavigation = Create("Frame", {
         Name = "TabsNavigation",
         Size = UDim2.new(1, 0, 0, 40),
-        BackgroundColor3 = UI.Theme.SecondaryBackground,
+        BackgroundTransparency = 1,
         BorderSizePixel = 0,
-        Parent = CodeEditor
+        Parent = CodeEditor,
+        Pad = {
+            Top = 0,
+            Bottom = 0,
+            Left = 16,
+            Right = 16
+        }
     })
 
     local TabsListLayout = Create("UIListLayout", {
@@ -334,12 +347,110 @@ function UI.InitCodeEditor(parameters : table)
         SortOrder = Enum.SortOrder.LayoutOrder,
         FillDirection = Enum.FillDirection.Horizontal,
         Padding = UDim.new(0, 10),
+        VerticalAlignment = Enum.VerticalAlignment.Center,
         Parent = TabsNavigation
     })
 
+    local CodeTextBox = Create("TextBox", {
+        Name = "CodeTextBox",
+        Size = UDim2.new(1, -20, 1, -40),
+        Position = UDim2.new(0, 16, 0, 48),
+        BackgroundTransparency = 0,
+        BackgroundColor3 = UI.Theme.SecondaryBackground,
+        TextColor3 = UI.Theme.Text,
+        CornerRadius = UDim.new(0, 5),
+        TextSize = 20,
+        Text = '',
+        FontFace = UI.Theme.Fonts.Regular,
+        MultiLine = true,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextYAlignment = Enum.TextYAlignment.Top,
+        ClearTextOnFocus = false,
+        Parent = CodeEditor,
+        Pad = {
+            Top = 10,
+            Bottom = 10,
+            Left = 30,
+            Right = 10
+        }
+    })
+
+
+    local function ensureDirectory()
+        if not isfolder("OceriumExec") then
+            makefolder("OceriumExec")
+        end
+    end
+
+
+    local function getTabFilePath(tabName)
+        return "OceriumExec/"..tabName
+    end
+
+
+    local function saveTabContent(tabName, content)
+        ensureDirectory()
+        Editor.TabContents[tabName] = content
+        writefile(getTabFilePath(tabName), content or "")
+    end
+
+    local function loadTabContent(tabName)
+        ensureDirectory()
+        local filePath = getTabFilePath(tabName)
+        if isfile(filePath) then
+            return readfile(filePath)
+        end
+        return ""
+    end
+
+
+    local function findExistingTabs()
+        ensureDirectory()
+        local tabs = {}
+        local files = listfiles("OceriumExec")
+
+        if files == nil or #files == 0 then
+            return false
+        end
+        for _, filePath in pairs(files) do
+            if typeof(tabs) ~= "table" then
+                return false
+            end
+            local fileName = filePath:split([[\]])[2] -- Получаем имя файла без пути
+            if fileName then
+                tabs[fileName] = readfile(filePath)
+            end
+        end
+        
+        return tabs
+    end
+
+    local function SwapTab(tabName)
+        Editor.ActiveTab = Editor.Tabs[tabName]
+        CodeTextBox.Text = Editor.TabContents[tabName] or ""
+        Editor.UpdateTabs()
+    end
+    
+    local function loadExistingTabs()
+        local existingTabs = findExistingTabs()
+        if existingTabs == false then
+            return
+        end
+        for tabName, tabContent in next,existingTabs do
+            Editor.TabContents[tabName] = tabContent
+            Editor.AddTab(tabName)
+        end
+    end
+
+    CodeTextBox:GetPropertyChangedSignal("Text"):Connect(function()
+        if Editor.ActiveTab then
+            saveTabContent(Editor.ActiveTab.Name, CodeTextBox.Text)
+        end
+    end)
+
     Editor.UpdateTabs = function()
         for _, tab in pairs(Editor.Tabs) do
-            if tab.Instance ~= Editor.ActiveTab.Instance then
+            if tab.Name ~= Editor.ActiveTab.Name then
                 Tween(tab.Instance, 0.2, {TextColor3 = UI.Theme.Text}, "Quad", "Out")
             end
         end
@@ -349,53 +460,90 @@ function UI.InitCodeEditor(parameters : table)
         end
     end
 
-    Editor.AddTab = function(tabName, TabContent)
+
+    
+    Editor.AddTab = function(tabName)
+        if not tabName then
+            Editor.TabCount = Editor.TabCount + 1
+            tabName = "Tab"..Editor.TabCount
+        else
+            local num = tabName:match("Tab(%d+)")
+            if num then
+                num = tonumber(num)
+                if num > Editor.TabCount then
+                    Editor.TabCount = num
+                end
+            end
+        end
+        
         local TabButton = Create("TextButton", {
             Name = tabName,
-            Size = UDim2.new(0, 100, 1, 0),
+            Size = UDim2.new(0, 0, 1, -2),
             BackgroundTransparency = 1,
+            BackgroundColor3 = UI.Theme.SecondaryBackground,
             TextColor3 = UI.Theme.Text,
-            TextSize = 18,
+            TextSize = 22,
             Text = tabName,
             FontFace = UI.Theme.Fonts.Regular,
-            Parent = TabsNavigation
+            Parent = TabsNavigation,
+            CornerRadius = UDim.new(0, 5),
         })
+    
+        TabButton.Size = UDim2.new(0, TabButton.TextBounds.X + 50, 1, -2)
 
         Editor.Tabs[tabName] = {
             Instance = TabButton,
-            Content = TabContent,
+            Name = tabName,
         }
-        Editor.ActiveTab = Editor.Tabs[tabName]
+    
+        TabButton.MouseEnter:Connect(function()
+            Tween(TabButton, 0.2, {BackgroundTransparency = 0.3}, "Quad", "Out")
+        end)
+    
+        TabButton.MouseLeave:Connect(function()
+            Tween(TabButton, 0.2, {BackgroundTransparency = 1}, "Quad", "Out")
+        end)
+
 
         TabButton.MouseButton1Click:Connect(function()
-            Editor.ActiveTab = Editor.Tabs[tabName]
-            Editor.UpdateTabs()
+            if Editor.ActiveTab then
+                Editor.ActiveTab.BackgroundTransparency = 1
+            end
+            SwapTab(tabName)
         end)
-        Editor.UpdateTabs()
+        SwapTab(tabName)
+        return Editor.Tabs[tabName]
     end
 
-    local CodeTextBox = Create("TextBox", {
-        Name = "CodeTextBox",
-        Size = UDim2.new(1, -20, 1, -40),
-        Position = UDim2.new(0, 16, 0, 48),
-        BackgroundTransparency = 1,
+    local AddTabButton = Create("TextButton", {
+        Name = "AddTabButton",
+        Size = UDim2.new(0, 40, 0, 30),
+        BackgroundTransparency = 0.7,
+        BackgroundColor3 = UI.Theme.Accent,
         TextColor3 = UI.Theme.Text,
         TextSize = 20,
-        Text = 'print("Hello, World!")',
-        FontFace = UI.Theme.Fonts.Regular,
-        MultiLine = true,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        TextYAlignment = Enum.TextYAlignment.Top,
-        ClearTextOnFocus = false,
-        Parent = CodeEditor
+        Text = "+",
+        FontFace = UI.Theme.Fonts.Bold,
+        Parent = TabsNavigation,
+        CornerRadius = UDim.new(0, 5),
+        LayoutOrder = 1000
     })
 
-    Editor.AddTab("Tab 1", CodeTextBox)
-    Editor.AddTab("Tab 2", "--Nothing here")
+
+    --Editor.AddTab()
+    AddTabButton.MouseButton1Click:Connect(function()
+        local newTab = Editor.AddTab()
+        Editor.ActiveTab = newTab.Instance
+        CodeTextBox.Text = ""
+        Editor.TabContents[newTab.Name] = ""
+    end)
+
+    if not findExistingTabs() then
+        Editor.AddTab("Tab1")
+    end
+    loadExistingTabs()
     return CodeEditor
 end
-
-
 
 local Editor = UI.CreateWindow({
     Title = "Code"
