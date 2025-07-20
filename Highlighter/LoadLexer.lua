@@ -1,6 +1,6 @@
 local dependencies = {
-	"Highlighter/lexer.lua",
-	"Highlighter/types.lua",
+    "Highlighter/lexer.lua",
+    "Highlighter/types.lua",
     "Highlighter/theme.lua",
     "Highlighter/utility.lua",
 }
@@ -11,11 +11,23 @@ local root = Instance.new("ModuleScript")
 root.Name = "Highlighter"
 
 for i,v in next, dependencies do
-	local Dependency = Instance.new("ModuleScript")
-	Dependency.Source = game:HttpGet(Repository..v)
-	Dependency.Parent = root
+    local name = v:split("/")[2]
+    local Dependency = Instance.new("ModuleScript")
+    Dependency.Source = game:HttpGet(Repository..v)
+    Dependency.Name = name:split(".")[1]
+    Dependency.Parent = root
 end
+
+local lexer = Instance.new("ModuleScript")
+lexer.Name = "Lexer"
+lexer.Source = game:HttpGet(Repository.."Highlighter/lexer.lua")
+lexer.Parent = root
+
+
+local language = Instance.new("ModuleScript")
+language.Name = "Language"
+language.Source = game:HttpGet(Repository.."Highlighter/language.lua")
+language.Parent = lexer
 
 root.Source = game:HttpGet(Repository.."Highlighter/init.lua")
 
-return root
