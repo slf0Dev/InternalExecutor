@@ -40,7 +40,7 @@ local Player	= game:GetService("Players").LocalPlayer
 
 local RS		= game:GetService("RunService")
 
-local Lexer			= loadstring(script.Lexer.Source)()
+local Lexer			= loadstring(script.lexer.Source)()
 local ObjectPool	= loadstring(script.ObjectPool.Source)()
 
 local ipairs	= ipairs
