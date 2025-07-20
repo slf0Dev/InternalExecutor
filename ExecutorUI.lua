@@ -7,7 +7,7 @@ local Repository = "https://raw.githubusercontent.com/slf0Dev/InternalExecutor/r
 
 local Themes = loadstring(game:HttpGet(Repository.."Themes.lua"))()
 local Lexer = loadstring(game:HttpGet(Repository.."Highlighter/LoadLexer.lua"))()
-print(Lexer.Source)
+print(Lexer)
 
 local UI = {
     Instances = {},
@@ -378,9 +378,7 @@ function UI.InitCodeEditor(parameters : table)
             Right = 10
         }
     })
-    Highlighter.highlight({
-        CodeTextBox,
-    })
+
 
     local function ensureDirectory()
         if not isfolder("OceriumExec") then

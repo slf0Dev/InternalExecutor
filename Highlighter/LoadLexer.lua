@@ -1,3 +1,5 @@
+local loader = {}
+
 local dependencies = {
     "Highlighter/lexer.lua",
     "Highlighter/types.lua",
@@ -30,5 +32,6 @@ language.Source = game:HttpGet(Repository.."Highlighter/language.lua")
 language.Parent = lexer
 
 root.Source = game:HttpGet(Repository.."Highlighter/init.lua")
+loader.Lexer = root
 
-return root
+return loader.Lexer
