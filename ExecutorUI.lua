@@ -6,7 +6,7 @@ local InputService = game:GetService("UserInputService");
 local Repository = "https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/"
 
 local Themes = loadstring(game:HttpGet(Repository.."Themes.lua"))()
-local Lexer = loadstring(game:HttpGet(Repository.."Lexer/init.lua"))()
+local Lexer = loadstring(game:HttpGet(Repository.."lexer/init.lua"))()
 
 
 local UI = {

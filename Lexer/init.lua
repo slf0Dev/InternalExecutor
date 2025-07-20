@@ -11,7 +11,7 @@ local theme = loadstring(
 )()
 
 local Highlighter = {
-	defaultLexer = require(types.Lexer),
+	--defaultLexer = types.Lexer,
 
 	_textObjectData = {} :: { [types.TextObject]: types.ObjectData },
 	_cleanups = {} :: { [types.TextObject]: () -> () },
