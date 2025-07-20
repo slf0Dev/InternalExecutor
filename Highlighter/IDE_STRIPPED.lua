@@ -2,9 +2,8 @@ local IDEModule = {}
 
 local TS = game:GetService("TextService")
 local RS = game:GetService("RunService")
-local Highlighter = loadstring(script:FindFirstChild("HighlighterModule").Source)()
+local Highlighter = loadstring(script.HighlighterModule.Source)()
 
-print(script:FindFirstChild("HighlighterModule"))
 -- Weird Luau VM optimizations
 local ipairs	= ipairs
 local pairs		= pairs

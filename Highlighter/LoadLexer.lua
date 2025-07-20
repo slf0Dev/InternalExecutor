@@ -30,5 +30,4 @@ root.Source = game:HttpGet(Repository.."Highlighter/IDE_STRIPPED.lua")
 task.wait(0.1)
 
 local Highlighter = loadstring(root.Source)()
-
-print(Highlighter.new)
+print('success')
