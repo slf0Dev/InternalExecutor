@@ -20,12 +20,14 @@ for i,v in next, dependencies do
     Dependency.Parent = main
 end
 
-root.Parent = workspace
-root.Source = game:HttpGet(Repository.."Highlighter/IDE_STRIPPED.lua")
-
 main.Parent = root
 main.Source = game:HttpGet(Repository.."Highlighter/HighlighterModule.lua")
 
+root.Parent = workspace
+root.Source = game:HttpGet(Repository.."Highlighter/IDE_STRIPPED.lua")
+
+task.wait(0.1)
 
 local Highlighter = loadstring(root.Source)()
 
+print(Highlighter.new)
