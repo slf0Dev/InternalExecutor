@@ -57,16 +57,15 @@ local TokenTemplate = Instance.new("TextLabel")
 
 local TokenPool = ObjectPool.new(TokenTemplate,50)
 
-local Theme = settings().Studio.Theme
 local ScriptColors = {
-	Number = Theme:GetColor(Enum.StudioStyleGuideColor.ScriptNumber);
-	String = Theme:GetColor(Enum.StudioStyleGuideColor.ScriptString);
-	Comment = Theme:GetColor(Enum.StudioStyleGuideColor.ScriptComment);
-	Text = Theme:GetColor(Enum.StudioStyleGuideColor.ScriptText);
-	Keyword = Theme:GetColor(Enum.StudioStyleGuideColor.ScriptKeyword);
-	Builtin = Theme:GetColor(Enum.StudioStyleGuideColor.ScriptBuiltInFunction);
-	Operator = Theme:GetColor(Enum.StudioStyleGuideColor.ScriptOperator);
-	Background = Theme:GetColor(Enum.StudioStyleGuideColor.ScriptBackground);
+	Number = Color3.fromRGB(255,198,0);
+	String = Color3.fromRGB(255,85,0);
+	Comment = Color3.fromRGB(85,255,0);
+	Text = Color3.fromRGB(0,255,255);
+	Keyword = Color3.fromRGB(255,0,255);
+	Builtin = Color3.fromRGB(0,0,255);
+	Operator = Color3.fromRGB(255,0,0);
+	Background = Color3.fromRGB(34, 34, 34);
 }
 
 local Module = {	
@@ -342,16 +341,16 @@ end
 
 function Module:ReloadColors(TextObject)
 	
-	Theme = settings().Studio.Theme
-	ScriptColors = {
-		Number = Theme:GetColor(Enum.StudioStyleGuideColor.ScriptNumber);
-		String = Theme:GetColor(Enum.StudioStyleGuideColor.ScriptString);
-		Comment = Theme:GetColor(Enum.StudioStyleGuideColor.ScriptComment);
-		Text = Theme:GetColor(Enum.StudioStyleGuideColor.ScriptText);
-		Keyword = Theme:GetColor(Enum.StudioStyleGuideColor.ScriptKeyword);
-		Builtin = Theme:GetColor(Enum.StudioStyleGuideColor.ScriptBuiltInFunction);
-		Operator = Theme:GetColor(Enum.StudioStyleGuideColor.ScriptOperator);
-		Background = Theme:GetColor(Enum.StudioStyleGuideColor.ScriptBackground);
+
+	local ScriptColors = {
+		Number = Color3.fromRGB(255,198,0);
+		String = Color3.fromRGB(255,85,0);
+		Comment = Color3.fromRGB(85,255,0);
+		Text = Color3.fromRGB(0,255,255);
+		Keyword = Color3.fromRGB(255,0,255);
+		Builtin = Color3.fromRGB(0,0,255);
+		Operator = Color3.fromRGB(255,0,0);
+		Background = Color3.fromRGB(34, 34, 34);
 	}
 	
 	Module.TokenToColor	= {
