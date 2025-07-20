@@ -1,4 +1,8 @@
-local types = require(script.Parent.types)
+local Repository = "https://github.com/slf0Dev/InternalExecutor/tree/master/"
+
+local types = loadstring(
+	game:HttpGet(Repository .. "Lexer/Types.lua", true)
+)()
 
 local Utility = {}
 

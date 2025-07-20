@@ -3,7 +3,11 @@ local Mouse = game.Players.LocalPlayer:GetMouse();
 local PlayerGui = game.Players.LocalPlayer.PlayerGui;
 local InputService = game:GetService("UserInputService");
 
-local Themes = loadstring(game:HttpGet("https://raw.githubusercontent.com/slf0Dev/InternalExecutor/master/Themes.lua"))()
+local Repository = "https://github.com/slf0Dev/InternalExecutor/tree/master/";
+
+local Themes = loadstring(game:HttpGet(Repository.."Themes.lua"))()
+local Lexer = loadstring(game:HttpGet(Repository.."Lexer/Lexer.lua"))()
+
 
 local UI = {
     Instances = {},

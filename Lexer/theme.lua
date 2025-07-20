@@ -9,8 +9,10 @@ local DEFAULT_TOKEN_COLORS = {
 	["operator"] = Color3.fromRGB(255, 239, 148),
 	["custom"] = Color3.fromRGB(119, 122, 255),
 }
-
-local types = require(script.Parent.types)
+local Repository = "https://github.com/slf0Dev/InternalExecutor/tree/master/"
+local types = loadstring(
+	game:HttpGet(Repository .. "Lexer/Types.lua", true)
+)()
 
 local Theme = {
 	tokenColors = {},
