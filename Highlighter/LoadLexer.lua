@@ -14,6 +14,9 @@ local main = Instance.new("ModuleScript")
 main.Name = "HighlighterModule"
 main.Parent = root
 
+_G.Lex = main
+
+
 for i,v in next, dependencies do
     local name = v:split("/")[2]
     local Dependency = Instance.new("ModuleScript")

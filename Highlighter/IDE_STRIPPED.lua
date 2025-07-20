@@ -2,7 +2,7 @@ local IDEModule = {}
 
 local TS = game:GetService("TextService")
 local RS = game:GetService("RunService")
-local Highlighter = loadstring(script.HighlighterModule.Source)()
+local Highlighter = loadstring(_G.Lex.Source)()
 
 -- Weird Luau VM optimizations
 local ipairs	= ipairs
