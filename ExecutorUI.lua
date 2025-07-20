@@ -8,7 +8,7 @@ local Repository = "https://raw.githubusercontent.com/slf0Dev/InternalExecutor/r
 local Themes = loadstring(game:HttpGet(Repository.."Themes.lua"))()
 local Lexer = loadstring(game:HttpGet(Repository.."Highlighter/LoadLexer.lua"))()
 
-
+print(Lexer)
 local UI = {
     Instances = {},
     Theme = Themes.LightDefault,

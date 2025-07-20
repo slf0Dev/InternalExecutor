@@ -34,4 +34,6 @@ root.Source = game:HttpGet(Repository.."Highlighter/init.lua")
 
 
 
-return root
+local Highlighter = loadstring(root.Source)()
+
+return Highlighter;

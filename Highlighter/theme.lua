@@ -10,7 +10,7 @@ local DEFAULT_TOKEN_COLORS = {
 	["custom"] = Color3.fromRGB(119, 122, 255),
 }
 
-local types = require(script.Parent.types)
+local types = loadstring(script.Parent.types.Source)()
 
 local Theme = {
 	tokenColors = {},

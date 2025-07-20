@@ -1,4 +1,4 @@
-local types = require(script.Parent.types)
+local types = loadstring(script.Parent.types.Source)()
 
 local Utility = {}
 

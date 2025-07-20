@@ -1,9 +1,9 @@
-local types = require(script.types)
-local utility = require(script.utility)
-local theme = require(script.theme)
+local types = loadstring(script.types.Source)()
+local utility = loadstring(script.utility.Source)()
+local theme = loadstring(script.theme.Source)()
 
 local Highlighter = {
-	defaultLexer = require(script.lexer) :: types.Lexer,
+	defaultLexer = loadstring(script.lexer.source)() :: types.Lexer,
 
 	_textObjectData = {} :: { [types.TextObject]: types.ObjectData },
 	_cleanups = {} :: { [types.TextObject]: () -> () },
