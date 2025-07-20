@@ -1,13 +1,13 @@
 local Repository = "https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/"
 
 local types = loadstring(
-	game:HttpGet(Repository .. "Lexer/Types.lua", true)
+	game:HttpGet(Repository .. "Lexer/types.lua", true)
 )()
 local utility = loadstring(
-	game:HttpGet(Repository .. "Lexer/Utility.lua", true)
+	game:HttpGet(Repository .. "Lexer/utility.lua", true)
 )()
 local theme = loadstring(
-	game:HttpGet(Repository .. "Lexer/Theme.lua", true)
+	game:HttpGet(Repository .. "Lexer/theme.lua", true)
 )()
 
 local Highlighter = {

@@ -51,7 +51,7 @@ local COMMENT_INCOMP = "%-%-.*" --Incompleted Singleline-Comment
 local Repository = "https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/"
 
 local lang = loadstring(
-	game:HttpGet(Repository .. "Lexer/lexer/Language.lua", true)
+	game:HttpGet(Repository .. "Lexer/lexer/language.lua", true)
 )()
 local lua_keyword = lang.keyword
 local lua_builtin = lang.builtin

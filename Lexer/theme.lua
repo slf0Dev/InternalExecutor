@@ -11,7 +11,7 @@ local DEFAULT_TOKEN_COLORS = {
 }
 local Repository = "https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/"
 local types = loadstring(
-	game:HttpGet(Repository .. "Lexer/Types.lua", true)
+	game:HttpGet(Repository .. "Lexer/types.lua", true)
 )()
 
 local Theme = {
