@@ -6,7 +6,9 @@ local InputService = game:GetService("UserInputService");
 local Repository = "https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/"
 
 local Themes = loadstring(game:HttpGet(Repository.."Themes.lua"))()
---local Lexer = loadstring(game:HttpGet(Repository.."Highlighter/LoadLexer.lua"))()
+local Highlighter = loadstring(game:HttpGet(Repository.."Highlighter/HighlighterModule.lua"))()
+local IDE = loadstring(game:HttpGet(Repository.."Highlighter/IDE_STRIPPED.lua"))()
+
 
 local UI = {
     Instances = {},
@@ -379,7 +381,6 @@ function UI.InitCodeEditor(parameters : table)
     })
 
 
-
     local function ensureDirectory()
         if not isfolder("OceriumExec") then
             makefolder("OceriumExec")
@@ -402,7 +403,7 @@ function UI.InitCodeEditor(parameters : table)
             end
         end
     end
-
+    _G.SaveTab = saveTabContent
     local function loadTabContent(tabName)
         ensureDirectory()
         local filePath = getTabFilePath(tabName)
@@ -450,12 +451,11 @@ function UI.InitCodeEditor(parameters : table)
             Editor.AddTab(tabName)
         end
     end
-
-    CodeTextBox:GetPropertyChangedSignal("Text"):Connect(function()
+    --[[CodeTextBox:GetPropertyChangedSignal("Text"):Connect(function()
         if Editor.ActiveTab then
             saveTabContent(Editor.ActiveTab.Name, CodeTextBox.Text)
         end
-    end)
+    end)]]
 
     Editor.UpdateTabs = function()
         for _, tab in pairs(Editor.Tabs) do
@@ -468,7 +468,7 @@ function UI.InitCodeEditor(parameters : table)
             Tween(Editor.ActiveTab.Instance, 0.2, {TextColor3 = UI.Theme.Accent}, "Quad", "Out")
         end
     end
-
+    IDE.new(CodeTextBox)
 
     
     Editor.AddTab = function(tabName)

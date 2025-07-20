@@ -20,6 +20,7 @@ function IDEModule.new(ParentFrame)
 
 	Scroller.Name						= "IDE"
 	Scroller.BackgroundColor3			= Color3.fromRGB(34, 34, 34)
+	Scroller.BackgroundTransparency		= 1
 	Scroller.Size						= UDim2.new(1,0,1,0)
 	Scroller.BorderSizePixel			= 0
 	Scroller.BottomImage				= Scroller.MidImage
@@ -38,6 +39,7 @@ function IDEModule.new(ParentFrame)
 
 	Input.Name						= "Input"
 	Input.BackgroundColor3			= Color3.fromRGB(27, 27, 27)
+	Input.BackgroundTransparency = 1
 	Input.Size						= UDim2.new(1,-TextSize*3,1,0)
 	Input.Position					= UDim2.new(0,TextSize*3,0,0)
 	Input.MultiLine					= true
