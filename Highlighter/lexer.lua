@@ -1,325 +1,248 @@
---[=[
+--[[
 	Lexical scanner for creating a sequence of tokens from Lua source code.
 	This is a heavily modified and Roblox-optimized version of
 	the original Penlight Lexer module:
 		https://github.com/stevedonovan/Penlight
 	Authors:
-		stevedonovan <https://github.com/stevedonovan> ----------- Original Penlight lexer author
-		ryanjmulder <https://github.com/ryanjmulder> ------------- Penlight lexer contributer
-		mpeterv <https://github.com/mpeterv> --------------------- Penlight lexer contributer
-		Tieske <https://github.com/Tieske> ----------------------- Penlight lexer contributer
-		boatbomber <https://github.com/boatbomber> --------------- Roblox port, added builtin token,
-		                                                           added patterns for incomplete syntax, bug fixes,
-		                                                           behavior changes, token optimization, thread optimization
-		                                                           Added lexer.navigator() for non-sequential reads
+		stevedonovan <https://github.com/stevedonovan> ----------------- Original Penlight lexer author
+		ryanjmulder <https://github.com/ryanjmulder> ----------------- Penlight lexer contributer
+		mpeterv <https://github.com/mpeterv> ----------------- Penlight lexer contributer
+		Tieske <https://github.com/Tieske> ----------------- Penlight lexer contributer
+		boatbomber <https://github.com/boatbomber> ----------------- Roblox port, added builtin token, added patterns for incomplete strings and comments, bug fixes
 		Sleitnick <https://github.com/Sleitnick> ----------------- Roblox optimizations
-		howmanysmall <https://github.com/howmanysmall> ----------- Lua + Roblox optimizations
-
-	List of possible tokens:
-		- iden
+		howmanysmall <https://github.com/howmanysmall> ----------------- Lua + Roblox optimizations
+	 
+	Usage:
+		local source = "for i = 1,n do end"
+		
+		-- The 'scan' function returns a token iterator:
+		for token,src in lexer.scan(source) do
+			print(token, src)
+		end
+			> keyword for
+			> iden i
+			> = =
+			> number 1
+			> , ,
+			> iden n
+			> keyword do
+			> keyword end
+	List of tokens:
 		- keyword
 		- builtin
+		- iden
 		- string
 		- number
+		- space
 		- comment
-		- operator
---]=]
+	Other tokens that don't fall into the above categories
+	will simply be returned as itself. For instance, operators
+	like "+" will simply return "+" as the token.
+--]]
 
 local lexer = {}
 
-local Prefix, Suffix, Cleaner = "^[%c%s]*", "[%c%s]*", "[%c%s]+"
-local UNICODE = "[%z\x01-\x7F\xC2-\xF4][\x80-\xBF]+"
-local NUMBER_A = "0[xX][%da-fA-F_]+"
-local NUMBER_B = "0[bB][01_]+"
-local NUMBER_C = "%d+%.?%d*[eE][%+%-]?%d+"
-local NUMBER_D = "%d+[%._]?[%d_eE]*"
-local OPERATORS = "[:;<>/~%*%(%)%-={},%.#%^%+%%]+"
-local BRACKETS = "[%[%]]+" -- needs to be separate pattern from other operators or it'll mess up multiline strings
-local IDEN = "[%a_][%w_]*"
-local STRING_EMPTY = "(['\"])%1" --Empty String
-local STRING_PLAIN = "(['\"])[^\n]-([^\\]%1)" --TODO: Handle escaping escapes
-local STRING_INTER = "`[^\n]-`"
-local STRING_INCOMP_A = "(['\"]).-\n" --Incompleted String with next line
-local STRING_INCOMP_B = "(['\"])[^\n]*" --Incompleted String without next line
-local STRING_MULTI = "%[(=*)%[.-%]%1%]" --Multiline-String
-local STRING_MULTI_INCOMP = "%[=*%[.-.*" --Incompleted Multiline-String
-local COMMENT_MULTI = "%-%-%[(=*)%[.-%]%1%]" --Completed Multiline-Comment
-local COMMENT_MULTI_INCOMP = "%-%-%[=*%[.-.*" --Incompleted Multiline-Comment
-local COMMENT_PLAIN = "%-%-.-\n" --Completed Singleline-Comment
-local COMMENT_INCOMP = "%-%-.*" --Incompleted Singleline-Comment
--- local TYPED_VAR = ":%s*([%w%?%| \t]+%s*)" --Typed variable, parameter, function
+local ipairs = ipairs
 
-local lang = loadstring(script.language.Source)()
-local lua_keyword = lang.keyword
-local lua_builtin = lang.builtin
-local lua_libraries = lang.libraries
+local NUMBER_A = "^0x[%da-fA-F]+"
+local NUMBER_B = "^%d+%.?%d*[eE][%+%-]?%d+"
+local NUMBER_C = "^%d+[%._]?[%d_]*"
+local IDEN = "^[%a_][%w_]*"
+local WSPACE = "^[ \t]+"
+local STRING_EMPTY = "^(['\"])%1"							--Empty String
+local STRING_PLAIN = [=[^(['"])[%w%p \t\v\b\f\r\a]-([^%\]%1)]=]	--TODO: Handle escaping escapes
+local STRING_INCOMP_A = "^(['\"]).-\n"						--Incompleted String with next line
+local STRING_INCOMP_B = "^(['\"])[^\n]*"					--Incompleted String without next line
+local STRING_MULTI = "^%[(=*)%[.-%]%1%]"					--Multiline-String
+local STRING_MULTI_INCOMP = "^%[%[.-.*"						--Incompleted Multiline-String
+local COMMENT_MULTI = "^%-%-%[(=*)%[.-%]%1%]"				--Completed Multiline-Comment
+local COMMENT_MULTI_INCOMP = "^%-%-%[%[.-.*"				--Incompleted Multiline-Comment
+local COMMENT_PLAIN = "^%-%-.-\n"							--Completed Singleline-Comment
+local COMMENT_INCOMP = "^%-%-.*"							--Incompleted Singleline-Comment
 
-lexer.language = lang
+local TABLE_EMPTY = {}
+
+local lua_keyword = {
+	["and"] = true, ["break"] = true, ["do"] = true, ["else"] = true, ["elseif"] = true,
+	["end"] = true, ["false"] = true, ["for"] = true, ["function"] = true, ["if"] = true,
+	["in"] = true, ["local"] = true, ["nil"] = true, ["not"] = true, ["while"] = true,
+	["or"] = true, ["repeat"] = true, ["return"] = true, ["then"] = true, ["true"] = true,
+	["self"] = true, ["until"] = true,
+	
+	["continue"] = true, -- Roblox supports but doesn't highlight yet? I'm highlighting. Fight me.
+	
+	["plugin"] = true, --Highlights as a keyword instead of a builtin cuz Roblox is weird
+}
+
+
+local lua_builtin = {
+	-- Lua Functions
+	["assert"] = true;["collectgarbage"] = true;["error"] = true;["getfenv"] = true;
+	["getmetatable"] = true;["ipairs"] = true;["loadstring"] = true;["newproxy"] = true;
+	["next"] = true;["pairs"] = true;["pcall"] = true;["print"] = true;["rawequal"] = true;
+	["rawget"] = true;["rawset"] = true;["select"] = true;["setfenv"] = true;["setmetatable"] = true;
+	["tonumber"] = true;["tostring"] = true;["type"] = true;["unpack"] = true;["xpcall"] = true;
+
+	-- Lua Variables
+	["_G"] = true;["_VERSION"] = true;
+
+	-- Lua Tables
+	["bit32"] = true;["coroutine"] = true;["debug"] = true;
+	["math"] = true;["os"] = true;["string"] = true;
+	["table"] = true;["utf8"] = true;
+
+	-- Roblox Functions
+	["delay"] = true;["elapsedTime"] = true;["gcinfo"] = true;["require"] = true;
+	["settings"] = true;["spawn"] = true;["tick"] = true;["time"] = true;["typeof"] = true;
+	["UserSettings"] = true;["wait"] = true;["warn"] = true;["ypcall"] = true;
+
+	-- Roblox Variables
+	["Enum"] = true;["game"] = true;["shared"] = true;["script"] = true;
+	["workspace"] = true;
+
+	-- Roblox Tables
+	["Axes"] = true;["BrickColor"] = true;["CellId"] = true;["CFrame"] = true;["Color3"] = true;
+	["ColorSequence"] = true;["ColorSequenceKeypoint"] = true;["DateTime"] = true;
+	["DockWidgetPluginGuiInfo"] = true;["Faces"] = true;["Instance"] = true;["NumberRange"] = true;
+	["NumberSequence"] = true;["NumberSequenceKeypoint"] = true;["PathWaypoint"] = true;
+	["PhysicalProperties"] = true;["PluginDrag"] = true;["Random"] = true;["Ray"] = true;["Rect"] = true;
+	["Region3"] = true;["Region3int16"] = true;["TweenInfo"] = true;["UDim"] = true;["UDim2"] = true;
+	["Vector2"] = true;["Vector2int16"] = true;["Vector3"] = true;["Vector3int16"] = true;
+}
+
+local function tdump(tok)
+	return coroutine.yield(tok, tok)
+end
+
+local function ndump(tok)
+	return coroutine.yield("number", tok)
+end
+
+local function sdump(tok)
+	return coroutine.yield("string", tok)
+end
+
+local function cdump(tok)
+	return coroutine.yield("comment", tok)
+end
+
+local function wsdump(tok)
+	return coroutine.yield("space", tok)
+end
+
+local function lua_vdump(tok)
+	if lua_keyword[tok] then
+		return coroutine.yield("keyword", tok)
+	elseif lua_builtin[tok] then
+		return coroutine.yield("builtin", tok)
+	else
+		return coroutine.yield("iden", tok)
+	end
+end
 
 local lua_matches = {
 	-- Indentifiers
-	{ Prefix .. IDEN .. Suffix, "var" },
-
+	{IDEN, lua_vdump},
+	
+	 -- Whitespace
+	{WSPACE, wsdump},
+	
 	-- Numbers
-	{ Prefix .. NUMBER_A .. Suffix, "number" },
-	{ Prefix .. NUMBER_B .. Suffix, "number" },
-	{ Prefix .. NUMBER_C .. Suffix, "number" },
-	{ Prefix .. NUMBER_D .. Suffix, "number" },
-
+	{NUMBER_A, ndump},
+	{NUMBER_B, ndump},
+	{NUMBER_C, ndump},
+	
 	-- Strings
-	{ Prefix .. STRING_EMPTY .. Suffix, "string" },
-	{ Prefix .. STRING_PLAIN .. Suffix, "string" },
-	{ Prefix .. STRING_INCOMP_A .. Suffix, "string" },
-	{ Prefix .. STRING_INCOMP_B .. Suffix, "string" },
-	{ Prefix .. STRING_MULTI .. Suffix, "string" },
-	{ Prefix .. STRING_MULTI_INCOMP .. Suffix, "string" },
-	{ Prefix .. STRING_INTER .. Suffix, "string_inter" },
-
+	{STRING_EMPTY, sdump},
+	{STRING_PLAIN, sdump},
+	{STRING_INCOMP_A, sdump},
+	{STRING_INCOMP_B, sdump},
+	{STRING_MULTI, sdump},
+	{STRING_MULTI_INCOMP, sdump},
+	
 	-- Comments
-	{ Prefix .. COMMENT_MULTI .. Suffix, "comment" },
-	{ Prefix .. COMMENT_MULTI_INCOMP .. Suffix, "comment" },
-	{ Prefix .. COMMENT_PLAIN .. Suffix, "comment" },
-	{ Prefix .. COMMENT_INCOMP .. Suffix, "comment" },
-
+	{COMMENT_MULTI, cdump},			
+	{COMMENT_MULTI_INCOMP, cdump},
+	{COMMENT_PLAIN, cdump},
+	{COMMENT_INCOMP, cdump},
+	
 	-- Operators
-	{ Prefix .. OPERATORS .. Suffix, "operator" },
-	{ Prefix .. BRACKETS .. Suffix, "operator" },
-
-	-- Unicode
-	{ Prefix .. UNICODE .. Suffix, "iden" },
-
-	-- Unknown
-	{ "^.", "iden" },
+	{"^==", tdump},
+	{"^~=", tdump},
+	{"^<=", tdump},
+	{"^>=", tdump},
+	{"^%.%.%.", tdump},
+	{"^%.%.", tdump},
+	{"^.", tdump}
 }
 
--- To reduce the amount of table indexing during lexing, we separate the matches now
-local PATTERNS, TOKENS = {}, {}
-for i, m in lua_matches do
-	PATTERNS[i] = m[1]
-	TOKENS[i] = m[2]
-end
-
 --- Create a plain token iterator from a string.
--- @tparam string s a string.
-
-function lexer.scan(s: string)
-	local index = 1
-	local size = #s
-	local previousContent1, previousContent2, previousContent3, previousToken = "", "", "", ""
-
-	local thread = coroutine.create(function()
-		while index <= size do
-			local matched = false
-			for tokenType, pattern in ipairs(PATTERNS) do
-				-- Find match
-				local start, finish = string.find(s, pattern, index)
-				if start == nil then
-					continue
-				end
-
-				-- Move head
-				index = finish + 1
-				matched = true
-
-				-- Gather results
-				local content = string.sub(s, start, finish)
-				local rawToken = TOKENS[tokenType]
-				local processedToken = rawToken
-
-				-- Process token
-				if rawToken == "var" then
-					-- Since we merge spaces into the tok, we need to remove them
-					-- in order to check the actual word it contains
-					local cleanContent = string.gsub(content, Cleaner, "")
-
-					if lua_keyword[cleanContent] then
-						processedToken = "keyword"
-					elseif lua_builtin[cleanContent] then
-						processedToken = "builtin"
-					elseif string.find(previousContent1, "%.[%s%c]*$") and previousToken ~= "comment" then
-						-- The previous was a . so we need to special case indexing things
-						local parent = string.gsub(previousContent2, Cleaner, "")
-						local lib = lua_libraries[parent]
-						if lib and lib[cleanContent] and not string.find(previousContent3, "%.[%s%c]*$") then
-							-- Indexing a builtin lib with existing item, treat as a builtin
-							processedToken = "builtin"
-						else
-							-- Indexing a non builtin, can't be treated as a keyword/builtin
-							processedToken = "iden"
-						end
-						-- print("indexing",parent,"with",cleanTok,"as",t2)
-					else
-						processedToken = "iden"
+-- @tparam string s a string.	
+	
+function lexer.scan(s)
+	local function lex(first_arg)
+		local line_nr = 0
+		local sz = #s
+		local idx = 1
+		
+		-- res is the value used to resume the coroutine.
+		local function handle_requests(res)
+			while res do
+				local tp = type(res)
+				-- Insert a token list:
+				if tp == "table" then
+					res = coroutine.yield("", "")
+					for _, t in ipairs(res) do
+						res = coroutine.yield(t[1], t[2])
 					end
-				elseif rawToken == "string_inter" then
-					if not string.find(content, "[^\\]{") then
-						-- This inter string doesnt actually have any inters
-						processedToken = "string"
+				elseif tp == "string" then -- Or search up to some special pattern:
+					local i1, i2 = string.find(s, res, idx)
+					if i1 then
+						idx = i2 + 1
+						res = coroutine.yield("", string.sub(s, i1, i2))
 					else
-						-- We're gonna do our own yields, so the main loop won't need to
-						-- Our yields will be a mix of string and whatever is inside the inters
-						processedToken = nil
-
-						local isString = true
-						local subIndex = 1
-						local subSize = #content
-						while subIndex <= subSize do
-							-- Find next brace
-							local subStart, subFinish = string.find(content, "^.-[^\\][{}]", subIndex)
-							if subStart == nil then
-								-- No more braces, all string
-								coroutine.yield("string", string.sub(content, subIndex))
-								break
-							end
-
-							if isString then
-								-- We are currently a string
-								subIndex = subFinish + 1
-								coroutine.yield("string", string.sub(content, subStart, subFinish))
-
-								-- This brace opens code
-								isString = false
-							else
-								-- We are currently in code
-								subIndex = subFinish
-								local subContent = string.sub(content, subStart, subFinish - 1)
-								for innerToken, innerContent in lexer.scan(subContent) do
-									coroutine.yield(innerToken, innerContent)
-								end
-
-								-- This brace opens string/closes code
-								isString = true
-							end
-						end
+						res = coroutine.yield("", "")
+						idx = sz + 1
 					end
-				end
-
-				-- Record last 3 tokens for the indexing context check
-				previousContent3 = previousContent2
-				previousContent2 = previousContent1
-				previousContent1 = content
-				previousToken = processedToken or rawToken
-				if processedToken then
-					coroutine.yield(processedToken, content)
-				end
-				break
-			end
-
-			-- No matches found
-			if not matched then
-				return
-			end
-		end
-
-		-- Completed the scan
-		return
-	end)
-
-	return function()
-		if coroutine.status(thread) == "dead" then
-			return
-		end
-
-		local success, token, content = coroutine.resume(thread)
-		if success and token then
-			return token, content
-		end
-
-		return
-	end
-end
-
-function lexer.navigator()
-	local nav = {
-		Source = "",
-		TokenCache = table.create(50),
-
-		_RealIndex = 0,
-		_UserIndex = 0,
-		_ScanThread = nil,
-	}
-
-	function nav:Destroy()
-		self.Source = nil
-		self._RealIndex = nil
-		self._UserIndex = nil
-		self.TokenCache = nil
-		self._ScanThread = nil
-	end
-
-	function nav:SetSource(SourceString)
-		self.Source = SourceString
-
-		self._RealIndex = 0
-		self._UserIndex = 0
-		table.clear(self.TokenCache)
-
-		self._ScanThread = coroutine.create(function()
-			for Token, Src in lexer.scan(self.Source) do
-				self._RealIndex += 1
-				self.TokenCache[self._RealIndex] = { Token, Src }
-				coroutine.yield(Token, Src)
-			end
-		end)
-	end
-
-	function nav.Next()
-		nav._UserIndex += 1
-
-		if nav._RealIndex >= nav._UserIndex then
-			-- Already scanned, return cached
-			return table.unpack(nav.TokenCache[nav._UserIndex])
-		else
-			if coroutine.status(nav._ScanThread) == "dead" then
-				-- Scan thread dead
-				return
-			else
-				local success, token, src = coroutine.resume(nav._ScanThread)
-				if success and token then
-					-- Scanned new data
-					return token, src
 				else
-					-- Lex completed
-					return
+					res = coroutine.yield(line_nr, idx)
 				end
 			end
 		end
-	end
-
-	function nav.Peek(PeekAmount)
-		local GoalIndex = nav._UserIndex + PeekAmount
-
-		if nav._RealIndex >= GoalIndex then
-			-- Already scanned, return cached
-			if GoalIndex > 0 then
-				return table.unpack(nav.TokenCache[GoalIndex])
-			else
-				-- Invalid peek
-				return
+		
+		handle_requests(first_arg)
+		line_nr = 1
+		
+		while true do
+			if idx > sz then
+				while true do
+					handle_requests(coroutine.yield())
+				end
 			end
-		else
-			if coroutine.status(nav._ScanThread) == "dead" then
-				-- Scan thread dead
-				return
-			else
-				local IterationsAway = GoalIndex - nav._RealIndex
-
-				local success, token, src = nil, nil, nil
-
-				for _ = 1, IterationsAway do
-					success, token, src = coroutine.resume(nav._ScanThread)
-					if not (success or token) then
-						-- Lex completed
-						break
+			for _, m in ipairs(lua_matches) do
+				local findres = table.create(2)
+				local i1, i2 = string.find(s, m[1], idx)
+				findres[1], findres[2] = i1, i2
+				if i1 then
+					local tok = string.sub(s, i1, i2)
+					idx = i2 + 1
+					lexer.finished = idx > sz
+					
+					local res = m[2](tok, findres)
+					
+					if string.find(tok, "\n") then
+						-- Update line number:
+						local _, newlines = string.gsub(tok, "\n", TABLE_EMPTY)
+						line_nr = line_nr + newlines
 					end
+					
+					handle_requests(res)
+					break
 				end
-
-				return token, src
 			end
 		end
 	end
-
-	return nav
+	return coroutine.wrap(lex)
 end
 
 return lexer
