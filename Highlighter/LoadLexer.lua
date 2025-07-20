@@ -1,7 +1,10 @@
 local dependencies = {
-	"Highlighter/lexer/init.lua",
-	"Highlighter/init.lua",
+	"Highlighter/lexer.lua",
+	"Highlighter/types.lua",
+    "Highlighter/theme.lua",
+    "Highlighter/utility.lua",
 }
+
 local Repository = "https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/"
 
 local root = Instance.new("ModuleScript")
