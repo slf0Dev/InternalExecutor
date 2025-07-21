@@ -634,6 +634,14 @@ function UI.InitCodeEditor(parameters : table)
         updateCursor()
     end)
 
+    CodeTextBox.InputBegan:Connect(function(input)
+        if input.KeyCode == Enum.KeyCode.Tab then
+            CodeTextBox.Text = string.gsub(CodeTextBox.Text, "\t", "___")
+            task.wait()
+            CodeTextBox.CursorPosition += 3
+        end
+    end)
+
     local function OnTextBoxFocused()
         while TextBox:IsFocused() do
             CursorDebounce = not CursorDebounce
