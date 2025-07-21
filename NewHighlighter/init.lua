@@ -328,6 +328,7 @@ function Highlighter.highlight(props: types.HighlightProps): () -> ()
 	textObject.TextColor3 = theme.getColor("iden")
 	textObject.TextTransparency = 0.5
 
+	local Lines = {}
 
 	local LinesCounter = Create("TextLabel",{
 		Parent = textObject,
@@ -336,7 +337,7 @@ function Highlighter.highlight(props: types.HighlightProps): () -> ()
 		TextColor3 = Color3.fromRGB(30,30,30),
 		TextSize = 18,
 		Position = UDim2.new(0,0,0,0),
-		BackgroundTransparency = 1 
+		BackgroundTransparency = 1
 	})
 
 	-- Build the highlight labels
@@ -382,6 +383,8 @@ function Highlighter.highlight(props: types.HighlightProps): () -> ()
 	end)
 	connections["TextChanged"] = textObject:GetPropertyChangedSignal("Text"):Connect(function()
 		Highlighter._populateLabels(props)
+		local _, count = textObject.Text:gsub("\n", "")
+		print(_)
 	end)
 	connections["TextBoundsChanged"] = textObject:GetPropertyChangedSignal("TextBounds"):Connect(function()
 		Highlighter._alignLabels(textObject)
