@@ -538,6 +538,7 @@ function UI.InitCodeEditor(parameters : table)
         InputBox.Text = ""
         Editor.TabContents[newTab.Name] = ""
         SwapTab(Editor.ActiveTab.Name)
+        InputBox:CaptureFocus()
     end)
 
     if not findExistingTabs() then
