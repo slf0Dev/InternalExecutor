@@ -7,7 +7,7 @@ local Repository = "https://raw.githubusercontent.com/slf0Dev/InternalExecutor/r
 
 local Themes = loadstring(game:HttpGet(Repository.."Themes.lua"))()
 local Highlighter = loadstring(game:HttpGet(Repository.."Highlighter/HighlighterModule.lua"))()
-local IDE = loadstring(game:HttpGet(Repository.."Highlighter/IDE_STRIPPED.lua"))()
+local IDE = loadstring(readfile("InternalExecutor/Highlighter/IDE_STRIPPED.lua"))()
 
 
 local UI = {
@@ -365,11 +365,10 @@ function UI.InitCodeEditor(parameters : table)
         CornerRadius = UDim.new(0, 5),
         Parent = CodeEditor,
     })
-    
-    IDE.new(CodeTextBox)
+    local InputBox = Create("TextLabel",{
+        
+    })
 
-    local InputBox = CodeTextBox:FindFirstChild("Input", true)
-    print(InputBox.Text)
 
     local function ensureDirectory()
         if not isfolder("OceriumExec") then
@@ -383,17 +382,6 @@ function UI.InitCodeEditor(parameters : table)
     end
 
 
-    local function saveTabContent(tabName, content)
-        ensureDirectory()
-        Editor.TabContents[tabName] = content
-        writefile(getTabFilePath(tabName), content or "")
-        if content == "" then
-            if isfile(getTabFilePath(tabName)) then
-                delfile(getTabFilePath(tabName))
-            end
-        end
-    end
-    
     local function findExistingTabs()
         ensureDirectory()
         local tabs = {}
@@ -414,7 +402,6 @@ function UI.InitCodeEditor(parameters : table)
         
         return tabs
     end
-
     local function SwapTab(tabName)
         Editor.ActiveTab = Editor.Tabs[tabName]
         InputBox.Text = Editor.TabContents[tabName] or ""
@@ -431,6 +418,31 @@ function UI.InitCodeEditor(parameters : table)
             Editor.AddTab(tabName)
         end
     end
+
+    
+    local function saveTabContent(tabName, content)
+        ensureDirectory()
+        Editor.TabContents[tabName] = content
+        writefile(getTabFilePath(tabName), content or "")
+        if content == "" then
+            if isfile(getTabFilePath(tabName)) then
+                delfile(getTabFilePath(tabName))
+            end
+        end
+    end
+
+    _G.Editor = {
+        loadExistingTabs = loadExistingTabs,
+        SwapTab = SwapTab,
+        UpdateTabs = Editor.UpdateTabs,
+        findExistingTabs = findExistingTabs,
+        saveTabContent = saveTabContent,
+        Editor = Editor
+    }
+
+
+    IDE.new(CodeTextBox)
+    InputBox = CodeTextBox:FindFirstChild("Input", true)
     --[[CodeTextBox:GetPropertyChangedSignal("Text"):Connect(function()
         if Editor.ActiveTab then
             saveTabContent(Editor.ActiveTab.Name, CodeTextBox.Text)
@@ -449,15 +461,6 @@ function UI.InitCodeEditor(parameters : table)
             Tween(Editor.ActiveTab.Instance, 0.2, {TextColor3 = UI.Theme.Accent}, "Quad", "Out")
         end
     end
-
-    _G.Editor = {
-        loadExistingTabs,
-        SwapTab,
-        Editor.UpdateTabs,
-        findExistingTabs,
-        saveTabContent,
-        Editor = Editor
-    }
     
     Editor.AddTab = function(tabName)
         if not tabName then

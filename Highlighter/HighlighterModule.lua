@@ -58,14 +58,14 @@ local TokenTemplate = Instance.new("TextLabel")
 local TokenPool = ObjectPool.new(TokenTemplate,50)
 
 local ScriptColors = {
-	Number = Color3.fromRGB(255,198,0);
-	String = Color3.fromRGB(255,85,0);
-	Comment = Color3.fromRGB(85,255,0);
-	Text = Color3.fromRGB(0,255,255);
-	Keyword = Color3.fromRGB(255,0,255);
-	Builtin = Color3.fromRGB(0,0,255);
-	Operator = Color3.fromRGB(255,0,0);
-	Background = Color3.fromRGB(34, 34, 34);
+    Number = Color3.fromRGB(155, 89, 0),       -- темно-оранжевый для чисел
+    String = Color3.fromRGB(200, 40, 41),      -- красный для строк
+    Comment = Color3.fromRGB(80, 140, 20),     -- темно-зеленый для комментариев
+    Text = Color3.fromRGB(30, 30, 30),         -- почти черный для обычного текста
+    Keyword = Color3.fromRGB(121, 33, 135),    -- фиолетовый для ключевых слов
+    Builtin = Color3.fromRGB(0, 90, 156),      -- синий для встроенных функций
+    Operator = Color3.fromRGB(30, 30, 30),     -- такой же как текст для операторов
+    Background = Color3.fromRGB(255, 255, 255) -- белый фон
 }
 
 local Module = {	
@@ -343,14 +343,14 @@ function Module:ReloadColors(TextObject)
 	
 
 	local ScriptColors = {
-		Number = Color3.fromRGB(255,198,0);
-		String = Color3.fromRGB(255,85,0);
-		Comment = Color3.fromRGB(85,255,0);
-		Text = Color3.fromRGB(0,255,255);
-		Keyword = Color3.fromRGB(255,0,255);
-		Builtin = Color3.fromRGB(0,0,255);
-		Operator = Color3.fromRGB(255,0,0);
-		Background = Color3.fromRGB(34, 34, 34);
+		Number = Color3.fromRGB(155, 89, 0),       -- темно-оранжевый для чисел
+		String = Color3.fromRGB(200, 40, 41),      -- красный для строк
+		Comment = Color3.fromRGB(80, 140, 20),     -- темно-зеленый для комментариев
+		Text = Color3.fromRGB(30, 30, 30),         -- почти черный для обычного текста
+		Keyword = Color3.fromRGB(121, 33, 135),    -- фиолетовый для ключевых слов
+		Builtin = Color3.fromRGB(0, 90, 156),      -- синий для встроенных функций
+		Operator = Color3.fromRGB(30, 30, 30),     -- такой же как текст для операторов
+		Background = Color3.fromRGB(255, 255, 255) -- белый фон
 	}
 	
 	Module.TokenToColor	= {

@@ -1,3 +1,4 @@
+
 local IDEModule = {}
 local Repository = "https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/"
 
@@ -102,6 +103,9 @@ function IDEModule.new(ParentFrame)
 	end)
 
 	local EditorFuncs = _G.Editor
+	for i,v in next,EditorFuncs do 
+		print(i,v)
+	end
 	local Editor = EditorFuncs.Editor
 	local PreviousLength = 0
 	Input:GetPropertyChangedSignal("Text"):Connect(function()
