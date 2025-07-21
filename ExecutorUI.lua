@@ -634,9 +634,13 @@ function UI.InitCodeEditor(parameters : table)
         updateCursor()
     end)
 
-    CodeTextBox.InputBegan:Connect(function(input)
+    InputService.InputBegan:Connect(function(input)
         if input.KeyCode == Enum.KeyCode.Tab then
-            CodeTextBox.CursorPosition = CodeTextBox.CursorPosition + 15
+            task.delay(0.1,function() 
+                task.defer(function()
+                    CodeTextBox.CursorPosition += 7
+                end)
+            end)
         end
     end)
 
