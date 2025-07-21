@@ -14,8 +14,11 @@ function Utility.sanitizeRichText(s: string): string
 	)
 end
 
-function Utility.convertTabsToSpaces(s: string): string
-	return string.gsub(s, "\t", "____")
+function Utility.convertTabsToSpaces(s: string, obj): string
+	if obj then
+		obj.CursorPosition += 4
+	end
+	return string.gsub(s, "\t", "    ")
 end
 
 function Utility.removeControlChars(s: string): string

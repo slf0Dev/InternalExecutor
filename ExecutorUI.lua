@@ -617,13 +617,6 @@ function UI.InitCodeEditor(parameters : table)
         end
     end)
 
-    InputService.InputBegan:Connect(function(input, gameProcessedEvent)
-        if input.KeyCode == Enum.KeyCode.Tab and CodeTextBox:IsFocused() then
-            CodeTextBox.Text = string.gsub(CodeTextBox.Text, "\t", "____")
-            CodeTextBox.CursorPosition = CodeTextBox.CursorPosition + 5
-        end
-    end)
-
     CodeTextBox.Focused:Connect(function()
         OnTextBoxFocused() 
     end)
