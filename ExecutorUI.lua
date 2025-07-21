@@ -6,7 +6,7 @@ local InputService = game:GetService("UserInputService");
 local Repository = "https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/"
 
 local Themes = loadstring(game:HttpGet(Repository.."Themes.lua"))()
-local Highlighter = loadstring(game:HttpGet(Repository.."NewHighlighter/init.lua"))()
+local Highlighter = loadstring(readfile("InternalExecutor/NewHighlighter/init.lua"))()
 --local IDE = loadstring(readfile("InternalExecutor/Highlighter/IDE_STRIPPED.lua"))()
 
 
@@ -356,17 +356,37 @@ function UI.InitCodeEditor(parameters : table)
         Parent = TabsNavigation
     })
 
-    local CodeTextBox = Create("TextBox", {
-        Name = "CodeTextBox",
+    local CodeBox = Create("Frame",{
+        Parent = CodeEditor,
         Size = UDim2.new(1, -20, 1, -40),
         Position = UDim2.new(0, 16, 0, 48),
         BackgroundTransparency = 0,
         BackgroundColor3 = UI.Theme.SecondaryBackground,
-        CornerRadius = UDim.new(0, 5),
-        Parent = CodeEditor,
-        FontFace = UI.Theme.Fonts.Regular,
+        CornerRadius = UDim.new(0,5),
+    })
+
+    local CodeBoxScroller = Create("ScrollingFrame",{
+        Parent = CodeBox,
+        Size = UDim2.new(1, 0, 1, 0),
+        Position = UDim2.new(0, 0, 0, 0),
+        BackgroundTransparency = 1,
+        CanvasSize = UDim2.new(0,0,0,0),
+        AutomaticCanvasSize = Enum.AutomaticSize.XY,
+        ScrollBarThickness = 8,
+        ScrollBarImageColor3 = UI.Theme.SubText,
+    })
+
+    local CodeTextBox = Create("TextBox", {
+        Name = "CodeTextBox",
+        Size = UDim2.new(1, 0, 1, 0),
+        AutomaticSize = Enum.AutomaticSize.XY,
+        BackgroundTransparency = 1,
+        BackgroundColor3 = UI.Theme.SecondaryBackground,
+        CornerRadius = UDim.new(0, 16),
+        Parent = CodeBoxScroller,
+        FontFace = Font.fromName("Ubuntu"),
         TextColor3 = Color3.fromRGB(255,255,255),
-        TextSize = 22,
+        TextSize = 20,
         ClearTextOnFocus = false,
         MultiLine = true,
         Pad = {
@@ -381,6 +401,154 @@ function UI.InitCodeEditor(parameters : table)
     Highlighter.highlight({
         textObject = CodeTextBox,
     })
+
+    local TextService = game:GetService("TextService")
+    local TextBox = CodeTextBox
+    local Cursor = Create("Frame",{
+        Parent = CodeTextBox,
+        Size = UDim2.new(0, 1, 0, 20),
+        BackgroundColor3 = Color3.new(0, 0, 0),
+        BackgroundTransparency = 0,
+        Visible = true,
+    })
+
+
+    local Overlay = Instance.new("TextLabel")
+    Overlay.Size = UDim2.new(1, 0, 1, 0)
+    Overlay.BackgroundTransparency = 1
+    Overlay.TextColor3 = Color3.fromRGB(0,0,0)
+    Overlay.RichText = true
+    Overlay.TextSize = 20
+    Overlay.Text = ""
+    Overlay.TextTransparency = 0
+    Overlay.Font = Enum.Font.Ubuntu
+    Overlay.TextXAlignment = Enum.TextXAlignment.Left
+    Overlay.TextYAlignment = Enum.TextYAlignment.Top
+    Overlay.Parent = CodeTextBox
+    Overlay.ZIndex = TextBox.ZIndex
+
+    local CursorDebounce = false
+
+    local selectionStart, selectionEnd
+
+    local function getSelection(TargetBox)
+        if TargetBox.SelectionStart ~= nil then
+            selectionStart = math.min(TargetBox.SelectionStart, TargetBox.CursorPosition)
+            selectionEnd = math.max(TargetBox.SelectionStart, TargetBox.CursorPosition)
+        else
+            selectionStart = TargetBox.CursorPosition
+            selectionEnd = TargetBox.CursorPosition
+        end
+        return {Start = selectionStart, End = selectionEnd}
+    end
+
+
+    local function updateSelection(mode : string)
+        local selection = getSelection(CodeTextBox)
+        local text = CodeTextBox.Text or ""
+
+        local selectionStart = selection.Start
+        local selectionEnd = selection.End
+        local textLength = #text
+        
+
+        if selectionStart > textLength + 1 then
+            selectionStart = textLength + 1
+        end
+        if selectionEnd > textLength + 1 then
+            selectionEnd = textLength + 1
+        end
+
+        local selectionLength = selectionEnd - selectionStart
+
+        if selectionLength > 0 then
+
+            local highlightEnd = math.min(selectionEnd - 1, textLength)
+            local pre = text:sub(1, selectionStart - 1)
+            local sel = text:sub(selectionStart, highlightEnd)
+            local post = text:sub(highlightEnd + 1)
+
+            local overlayText = string.format(
+                '<font transparency="1">%s<mark color="#009966" transparency="0.6">%s</mark>%s</font>',
+                pre, sel, post)
+            Overlay.Text = overlayText
+        end
+    end
+
+    local TextService = game:GetService("TextService")
+    
+    local function getTextWidth(text)
+        local size = TextService:GetTextSize(text, TextBox.TextSize, TextBox.Font, Vector2.new(1000, 40))
+        return size.X
+    end
+    
+    local TextService = game:GetService("TextService")
+
+    local function updateCursor()
+        local cursorPos = TextBox.CursorPosition
+        local fullText = TextBox.Text or ""
+        cursorPos = math.clamp(cursorPos, 1, #fullText + 1)
+        
+        -- Получаем текст до курсора
+        local preText = fullText:sub(1, cursorPos - 1)
+        
+        -- Получаем параметры текста
+        local fontSize = TextBox.TextSize
+        local font = TextBox.Font
+        local textWidth = TextBox.AbsoluteSize.X
+        
+        -- Рассчитываем высоту одной строки
+        local lineHeight = TextService:GetTextSize(
+            "W",  -- Произвольный символ для измерения
+            fontSize,
+            font,
+            Vector2.new(math.huge, math.huge)
+        ).Y
+        
+        -- Разбиваем текст на строки
+        local lines = {}
+        for line in (preText.."\n"):gmatch("(.-)\n") do
+            table.insert(lines, line)
+        end
+        
+        -- Текст текущей строки
+        local currentLine = lines[#lines] or ""
+        
+        -- Рассчитываем смещение по X для текущей строки
+        local offsetX = TextService:GetTextSize(
+            currentLine,
+            fontSize,
+            font,
+            Vector2.new(math.huge, math.huge)
+        ).X
+        
+        -- Рассчитываем смещение по Y (номер строки - 1)
+        local offsetY = (#lines - 1) * lineHeight
+        
+
+
+        Tween(Cursor,0.1,{Position = UDim2.fromOffset(offsetX,offsetY)})
+        
+        -- Устанавливаем правильную высоту курсора
+        Cursor.Size = UDim2.new(0, 2, 0, lineHeight)
+        
+        Cursor.Visible = true
+    end
+
+    CodeTextBox:GetPropertyChangedSignal("SelectionStart"):Connect(updateOverlay)
+    CodeTextBox:GetPropertyChangedSignal("CursorPosition"):Connect(function()
+        updateSelection()
+        updateCursor()
+    end)
+
+    local function OnTextBoxFocused()
+        while TextBox:IsFocused() do
+            CursorDebounce = not CursorDebounce
+            Tween(Cursor,0.5,{BackgroundTransparency = (CursorDebounce and 1 or 0)})
+            task.wait(CursorDebounce == true and 0.4 or 0.5)
+        end
+    end
+
 
     local function ensureDirectory()
         if not isfolder("OceriumExec") then
@@ -446,8 +614,14 @@ function UI.InitCodeEditor(parameters : table)
     InputBox = CodeTextBox
     CodeTextBox:GetPropertyChangedSignal("Text"):Connect(function()
         if Editor.ActiveTab then
+            updateCursor()
+            updateSelection()
             saveTabContent(Editor.ActiveTab.Name, CodeTextBox.Text)
         end
+    end)
+
+    CodeTextBox.Focused:Connect(function()
+        OnTextBoxFocused() 
     end)
 
 

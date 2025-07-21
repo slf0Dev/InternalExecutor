@@ -326,18 +326,21 @@ function Highlighter.highlight(props: types.HighlightProps): () -> ()
 	textObject.TextYAlignment = Enum.TextYAlignment.Top
 	textObject.BackgroundColor3 = theme.getColor("background")
 	textObject.TextColor3 = theme.getColor("iden")
-	textObject.TextTransparency = 0.5
+	textObject.TextTransparency = 1
 
 	local Lines = {}
 
 	local LinesCounter = Create("TextLabel",{
 		Parent = textObject,
-		Text = "1",
+		Text = "",
 		FontFace = Font.fromName("Cairo",Enum.FontWeight.Regular, Enum.FontStyle.Normal),
 		TextColor3 = Color3.fromRGB(30,30,30),
-		TextSize = 18,
-		Position = UDim2.new(0,0,0,0),
-		BackgroundTransparency = 1
+		TextSize = 22,
+		Position = UDim2.new(0,-44,0,0),
+		Size = UDim2.new(0,40,1,0),
+		BackgroundTransparency = 1,
+		TextXAlignment = Enum.TextXAlignment.Right,
+		TextYAlignment = Enum.TextYAlignment.Top
 	})
 
 	-- Build the highlight labels
@@ -384,7 +387,11 @@ function Highlighter.highlight(props: types.HighlightProps): () -> ()
 	connections["TextChanged"] = textObject:GetPropertyChangedSignal("Text"):Connect(function()
 		Highlighter._populateLabels(props)
 		local _, count = textObject.Text:gsub("\n", "")
-		print(_)
+		LinesCounter.Text = "1"  -- Очищаем счётчик перед заполнением
+		for c = 1, count do
+			local realc = c+1
+			LinesCounter.Text = LinesCounter.Text .. ("\n") .. realc
+		end
 	end)
 	connections["TextBoundsChanged"] = textObject:GetPropertyChangedSignal("TextBounds"):Connect(function()
 		Highlighter._alignLabels(textObject)
