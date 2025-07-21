@@ -48,7 +48,7 @@ function IDEModule.new(ParentFrame)
 	Input.TextSize					= TextSize
 	Input.Text						= ""
 	Input.BorderSizePixel			= 0
-	Input.Font						= Enum.Font.Code
+	Input.FontFace						= Font.fromName("Rubik")
 	Input.TextColor3				= Color3.fromRGB(0,0,0)
 	Input.TextXAlignment			= Enum.TextXAlignment.Left
 	Input.TextYAlignment			= Enum.TextYAlignment.Top
@@ -76,7 +76,7 @@ function IDEModule.new(ParentFrame)
 	LineMarker.BackgroundTransparency	= 1
 	LineMarker.LayoutOrder				= 1
 	LineMarker.TextSize					= TextSize
-	LineMarker.Font						= Enum.Font.Code
+	LineMarker.FontFace						= Font.fromName("Rubik")
 	LineMarker.TextColor3				= Color3.fromRGB(0,0,0)
 	LineMarker.TextXAlignment			= Enum.TextXAlignment.Right
 	LineMarker.Size						= UDim2.new(1,0,0,TextSize)
@@ -165,7 +165,13 @@ function IDEModule.new(ParentFrame)
 		end
 
 		-- Handle autosizing the scrollingframe
-		local TextBounds = TS:GetTextSize(Text,TextSize,Input.Font, Vector2.new(99999,99999))
+		local params = Instance.new("GetTextBoundsParams")
+		params.Text = Text
+		params.Font = Font.new("rbxassetid://12187365977")
+		params.Size = TextSize
+		params.Width = 1
+		local TextBounds = TS:GetTextBoundsAsync(params)
+		--local TextBounds = game:GetService("TextService"):GetTextSize(Text,TextSize,Enum.Font.Code,Vector2.new(9999,9999))
 		Scroller.CanvasSize = UDim2.new(
 			0,TextBounds.X+Input.Position.X.Offset+TextSize,
 			0,TextBounds.Y+Scroller.AbsoluteWindowSize.Y-TextSize
