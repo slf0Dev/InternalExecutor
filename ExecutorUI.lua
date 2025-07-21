@@ -8,11 +8,11 @@ local LogService = game:GetService("LogService")
 local Repository = "https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/"
 
 _G.Themes = loadstring(game:HttpGet(Repository.."Themes.lua"))()
-
+local Themes = _G.Themes
 
 local UI = {
     Instances = {},
-    Theme = Themes.DarkDefault,
+    Theme = Themes.LightDefault,
     Active = true
 }
 
@@ -27,7 +27,6 @@ local function deepCopy(original)
 	return copy
 end
 
-print(deepCopy(UI.Theme))
 Themes.CurrentTheme = deepCopy(UI.Theme)
 local Highlighter = loadstring(readfile("InternalExecutor/NewHighlighter/init.lua"))()
 
@@ -535,8 +534,9 @@ function UI.InitCodeEditor(parameters : table)
         return {Start = selectionStart, End = selectionEnd}
     end
 
-
+    local overlaycolor = "#" .. tostring(UI.Theme.Accent:ToHex())
     local function updateSelection(mode : string)
+        overlaycolor = "#" .. tostring(UI.Theme.Accent:ToHex())
         local selection = getSelection(CodeTextBox)
         local text = CodeTextBox.Text or ""
 
@@ -562,7 +562,7 @@ function UI.InitCodeEditor(parameters : table)
             local post = text:sub(highlightEnd + 1)
 
             local overlayText = string.format(
-                '<font transparency="1">%s<mark color="#009966" transparency="0.6">%s</mark>%s</font>',
+                '<font transparency="1">%s<mark color="'..overlaycolor..'" transparency="0.6">%s</mark>%s</font>',
                 pre, sel, post)
             Overlay.Text = overlayText
         end
@@ -853,7 +853,7 @@ UI.InitLogs = function(parameters)
         MessageColors = {
             MessageError = {Color3.fromRGB(255,50,0), "rbxassetid://3926305904", Vector2.new(964, 84), Vector2.new(36,36),true},
             MessageWarning = {Color3.fromRGB(255,150,0), "rbxassetid://3926305904", Vector2.new(364, 324), Vector2.new(36,36),true},
-            MessageOutput = {Color3.fromRGB(230,230,230), "rbxassetid://3926305904", Vector2.new(764, 444), Vector2.new(36,36),true}
+            MessageOutput = {UI.Theme.Text, "rbxassetid://3926305904", Vector2.new(764, 444), Vector2.new(36,36),true}
         }
     }
     
