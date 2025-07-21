@@ -345,7 +345,8 @@ function Highlighter.highlight(props: types.HighlightProps): () -> ()
 		TextYAlignment = Enum.TextYAlignment.Top,
 		Pad = {
 			Right = 6
-		}
+		},
+		LineHeight = 1.4
 	})
 
 	local LinesDivider = Create("Frame",{

@@ -12,7 +12,7 @@ local Themes = _G.Themes
 
 local UI = {
     Instances = {},
-    Theme = Themes.LightDefault,
+    Theme = Themes.DarkDefault,
     Active = true
 }
 
@@ -486,8 +486,11 @@ function UI.InitCodeEditor(parameters : table)
             Bottom = 8,
             Left = 40,
             Right = 8
-        }
+        },
     })
+
+
+
     local InputBox = CodeTextBox
 
     Highlighter.highlight({
@@ -505,19 +508,20 @@ function UI.InitCodeEditor(parameters : table)
     })
 
 
-    local Overlay = Instance.new("TextLabel")
-    Overlay.Size = UDim2.new(1, 0, 1, 0)
-    Overlay.BackgroundTransparency = 1
-    Overlay.TextColor3 = Color3.fromRGB(0,0,0)
-    Overlay.RichText = true
-    Overlay.TextSize = CodeTextBox.TextSize
-    Overlay.Text = ""
-    Overlay.TextTransparency = 0
-    Overlay.Font = Enum.Font.Ubuntu
-    Overlay.TextXAlignment = Enum.TextXAlignment.Left
-    Overlay.TextYAlignment = Enum.TextYAlignment.Top
-    Overlay.Parent = CodeTextBox
-    Overlay.ZIndex = TextBox.ZIndex
+    local Overlay = Create("TextLabel",{
+        Size = UDim2.new(1, 0, 1, 0),
+        BackgroundTransparency = 1,
+        TextColor3 = Color3.fromRGB(0,0,0),
+        RichText = true,
+        TextSize = CodeTextBox.TextSize,
+        Text = "",
+        TextTransparency = 0,
+        Font = Enum.Font.Ubuntu,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextYAlignment = Enum.TextYAlignment.Top,
+        Parent = CodeTextBox,
+        ZIndex = TextBox.ZIndex,
+    })
 
     local CursorDebounce = false
 
@@ -616,7 +620,7 @@ function UI.InitCodeEditor(parameters : table)
         ).X
         
 
-        local offsetY = (#lines - 1) * lineHeight
+        local offsetY = (#lines - 1) * (lineHeight)
         
 
 
