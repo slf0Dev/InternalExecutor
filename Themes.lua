@@ -31,4 +31,37 @@ Themes.LightDefault = {
     } -- Editor Colors
 }
 
+Themes.DarkDefault = {
+    Accent = Color3.fromRGB(60, 119, 247),
+    Secondary = Color3.fromRGB(255, 120, 200),
+    Success = Color3.fromRGB(120, 255, 150),
+    Danger = Color3.fromRGB(255, 100, 100),
+    Warning = Color3.fromRGB(255, 180, 100),
+    Dark = Color3.fromRGB(20, 20, 30),
+    Light = Color3.fromRGB(60, 60, 80),
+    Background = Color3.fromRGB(15, 15, 25),
+    SecondaryBackground = Color3.fromRGB(30, 30, 45),
+    Card = Color3.fromRGB(40, 40, 60),
+    Text = Color3.fromRGB(210, 210, 230),
+    SubText = Color3.fromRGB(140, 140, 160),
+
+    Fonts = {
+        Bold = Font.fromName("Cairo", Enum.FontWeight.Bold, Enum.FontStyle.Normal),
+        Regular = Font.fromName("Cairo", Enum.FontWeight.Regular, Enum.FontStyle.Normal),
+    },
+
+    TokenColors = {
+        ["background"] = Color3.fromRGB(30, 30, 40),
+        ["iden"] = Color3.fromRGB(210, 210, 230),
+        ["keyword"] = Color3.fromRGB(180, 120, 255),
+        ["builtin"] = Color3.fromRGB(100, 160, 255),
+        ["string"] = Color3.fromRGB(140, 220, 140),
+        ["number"] = Color3.fromRGB(255, 120, 110),
+        ["comment"] = Color3.fromRGB(100, 120, 140),
+        ["operator"] = Color3.fromRGB(250, 210, 140),
+        ["custom"] = Color3.fromRGB(120, 150, 220),
+    }
+}
+
+
 return Themes;
