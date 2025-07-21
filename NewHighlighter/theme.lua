@@ -17,8 +17,7 @@ end
 
 local EditorThemes = GetModule("Themes.lua")
 
-DEFAULT_TOKEN_COLORS = EditorThemes[EditorThemes.CurrentTheme].TokenColors
-print(DEFAULT_TOKEN_COLORS)
+DEFAULT_TOKEN_COLORS = EditorThemes.DarkDefault.TokenColors
 
 local types = GetModule("NewHighlighter/types.lua")
 

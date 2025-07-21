@@ -13,12 +13,8 @@ local UI = {
     Instances = {},
     Theme = Themes.DarkDefault,
 }
+Themes.CurrentTheme = "DarkDefault"
 
-for i,v in next,Themes do
-    if v == UI.Theme then
-        Themes.CurrentTheme = i
-    end
-end
 local function Observable(initialValue)
     local subscribers = {}
     local value = type(initialValue) == "table" and {} or initialValue
