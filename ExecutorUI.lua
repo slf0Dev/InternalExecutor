@@ -636,7 +636,7 @@ function UI.InitCodeEditor(parameters : table)
 
     InputService.InputBegan:Connect(function(input)
         if input.KeyCode == Enum.KeyCode.Tab then
-            task.delay(0.1,function() 
+            task.delay(0,function() 
                 task.defer(function()
                     CodeTextBox.CursorPosition += 7
                 end)
