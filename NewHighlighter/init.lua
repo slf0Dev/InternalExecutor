@@ -5,7 +5,7 @@ end
 local types = GetModule("NewHighlighter/types.lua")
 local utility = GetModule('NewHighlighter/utility.lua')
 local theme = GetModule("NewHighlighter/theme.lua")
-local Themes = GetModule("Themes.lua")
+local Themes = _G.Themes
 
 local HasProperty = function(instance, property) -- Currently not so reliable. Tests if instance has a certain property
 	local successful = pcall(function()
