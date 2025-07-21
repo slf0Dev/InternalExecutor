@@ -14,10 +14,7 @@ function Utility.sanitizeRichText(s: string): string
 	)
 end
 
-function Utility.convertTabsToSpaces(s: string, obj): string
-	if obj.ClassName == "TextBox" then
-		obj.CursorPosition += 4
-	end
+function Utility.convertTabsToSpaces(s: string)
 	return string.gsub(s, "\t", "    ")
 end
 

@@ -308,7 +308,7 @@ end
 function Highlighter.highlight(props: types.HighlightProps): () -> ()
 	-- Gather props
 	local textObject = props.textObject
-	local src = utility.convertTabsToSpaces(utility.removeControlChars(props.src or textObject.Text),textObject)
+	local src = utility.convertTabsToSpaces(utility.removeControlChars(props.src or textObject.Text))
 	local lexer = props.lexer or Highlighter.defaultLexer
 	local customLang = props.customLang
 
