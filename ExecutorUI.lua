@@ -13,7 +13,7 @@ local UI = {
     Instances = {},
     Theme = Themes.DarkDefault,
 }
-Themes.CurrentTheme = "DarkDefault"
+
 
 local function Observable(initialValue)
     local subscribers = {}
