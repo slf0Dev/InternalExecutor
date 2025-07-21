@@ -1,4 +1,4 @@
-local function GetModule(Path : string)
+local function GetModule(Path)
 	return loadstring(game:HttpGet("https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/NewHighlighter/" .. Path))()
 end
 
@@ -7,7 +7,7 @@ local utility = GetModule('utility.lua')
 local theme = GetModule("theme.lua")
 
 local Highlighter = {
-	defaultLexer = GetModule("initlexer.lua") :: types.Lexer,
+	defaultLexer = GetModule("initLexer.lua") :: types.Lexer,
 
 	_textObjectData = {} :: { [types.TextObject]: types.ObjectData },
 	_cleanups = {} :: { [types.TextObject]: () -> () },
