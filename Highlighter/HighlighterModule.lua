@@ -156,7 +156,7 @@ function Module:Highlight(TextObject)
 	-- Gather data for the TextObject
 	local Source		= TextObject.Text
 	local TextSize		= TextObject.TextSize
-	local TextSizeX		= math.ceil(TextSize*0.5)
+	local TextSizeX		= math.ceil(TextSize*1)
 	local LineHeight	= TextSize*TextObject.LineHeight
 	
 	-- Init counters and indexes
