@@ -103,9 +103,6 @@ function IDEModule.new(ParentFrame)
 	end)
 
 	local EditorFuncs = _G.Editor
-	for i,v in next,EditorFuncs do 
-		print(i,v)
-	end
 	local Editor = EditorFuncs.Editor
 	local PreviousLength = 0
 	Input:GetPropertyChangedSignal("Text"):Connect(function()

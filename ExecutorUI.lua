@@ -360,7 +360,7 @@ function UI.InitCodeEditor(parameters : table)
         Name = "CodeTextBox",
         Size = UDim2.new(1, -20, 1, -40),
         Position = UDim2.new(0, 16, 0, 48),
-        BackgroundTransparency = 0,
+        BackgroundTransparency = 1,
         BackgroundColor3 = UI.Theme.SecondaryBackground,
         CornerRadius = UDim.new(0, 5),
         Parent = CodeEditor,
