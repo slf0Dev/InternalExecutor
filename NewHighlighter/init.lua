@@ -76,7 +76,7 @@ function Create(instance : string,properties : table)
 end
 
 local Highlighter = {
-	defaultLexer = GetModule("initLexer.lua") :: types.Lexer,
+	defaultLexer = GetModule("NewHighlighter/initLexer.lua") :: types.Lexer,
 
 	_textObjectData = {} :: { [types.TextObject]: types.ObjectData },
 	_cleanups = {} :: { [types.TextObject]: () -> () },
@@ -337,7 +337,7 @@ function Highlighter.highlight(props: types.HighlightProps): () -> ()
 		Text = "",
 		FontFace = Font.fromName("Ubuntu",Enum.FontWeight.Regular, Enum.FontStyle.Normal),
 		TextColor3 = Themes.DarkDefault.SubText,
-		TextSize = 22,
+		TextSize = 20,
 		Position = UDim2.new(0,-44,0,0),
 		Size = UDim2.new(0,40,1,0),
 		BackgroundTransparency = 1,
