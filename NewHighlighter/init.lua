@@ -337,12 +337,22 @@ function Highlighter.highlight(props: types.HighlightProps): () -> ()
 		Text = "",
 		FontFace = Font.fromName("Ubuntu",Enum.FontWeight.Regular, Enum.FontStyle.Normal),
 		TextColor3 = Themes.DarkDefault.SubText,
-		TextSize = 20,
-		Position = UDim2.new(0,-44,0,0),
+		TextSize = textObject.TextSize,
+		Position = UDim2.new(0,-42,0,0),
 		Size = UDim2.new(0,40,1,0),
 		BackgroundTransparency = 1,
 		TextXAlignment = Enum.TextXAlignment.Right,
-		TextYAlignment = Enum.TextYAlignment.Top
+		TextYAlignment = Enum.TextYAlignment.Top,
+		Pad = {
+			Right = 6
+		}
+	})
+
+	local LinesDivider = Create("Frame",{
+		Parent = LinesCounter,
+		Size = UDim2.new(0,1,1,0),
+		BackgroundColor3 = Themes.DarkDefault.SubText,
+		Position = UDim2.new(1,4,0,0)
 	})
 
 	-- Build the highlight labels

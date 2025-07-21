@@ -1,18 +1,23 @@
-local TweenService = game:GetService("TweenService");
-local Mouse = game.Players.LocalPlayer:GetMouse();
-local PlayerGui = game.Players.LocalPlayer.PlayerGui;
-local InputService = game:GetService("UserInputService");
+local TweenService = game:GetService("TweenService")
+local PlayerGui = game.Players.LocalPlayer.PlayerGui
+local InputService = game:GetService("UserInputService")
+local Player = game.Players.LocalPlayer
+local Mouse = Player:GetMouse()
+local LogService = game:GetService("LogService")
 
 local Repository = "https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/"
 
 local Themes = loadstring(game:HttpGet(Repository.."Themes.lua"))()
-local Highlighter = loadstring(readfile("InternalExecutor/NewHighlighter/init.lua"))()
 
 
 local UI = {
     Instances = {},
     Theme = Themes.DarkDefault,
+    Active = true
 }
+
+Themes.CurrentTheme = UI.Theme
+local Highlighter = loadstring(readfile("InternalExecutor/NewHighlighter/init.lua"))()
 
 
 local function Observable(initialValue)
@@ -248,6 +253,46 @@ function Tween(instance, time, properties,EasingStyle,EasingDirection)
 end
 
 
+local function createRipple(button, RippleColor)
+    -- Создаём круговой Frame для эффекта
+    local clickPos = Vector2.new(Mouse.X - button.AbsolutePosition.X, Mouse.Y - button.AbsolutePosition.Y)
+
+    local ripple = Instance.new("Frame")
+    ripple.Name = "RippleEffect"
+    ripple.BackgroundColor3 = RippleColor or Color3.new(1, 1, 1)
+    ripple.BackgroundTransparency = 0.5
+    ripple.AnchorPoint = Vector2.new(0.5, 0.5)
+    ripple.ClipsDescendants = true
+    ripple.Size = UDim2.new(0, 0, 0, 0)
+    ripple.Position = UDim2.new(0, clickPos.X, 0, clickPos.Y)
+    ripple.ZIndex = button.ZIndex + 1
+    ripple.Parent = button
+
+    -- Скругляем круг
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(1, 0)
+    corner.Parent = ripple
+
+    local maxSize = math.max(button.AbsoluteSize.X, button.AbsoluteSize.Y) * 2
+
+    -- Создаём анимацию роста круга и исчезания
+    local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.Out)
+
+    local sizeGoal = {Size = UDim2.new(0, maxSize, 0, maxSize), BackgroundTransparency = 1}
+    local positionGoal = UDim2.new(0, clickPos.X, 0, clickPos.Y)
+
+    local tween = TweenService:Create(ripple, tweenInfo, sizeGoal)
+    local tweenPos = TweenService:Create(ripple, tweenInfo, {Position = positionGoal})
+
+    tween:Play()
+    tweenPos:Play()
+
+    tween.Completed:Connect(function()
+        ripple:Destroy()
+    end)
+end
+
+
 if game.CoreGui:FindFirstChild("ExecutorUI") then
     game.CoreGui.ExecutorUI:Destroy()
 end
@@ -257,17 +302,27 @@ local Screengui = Create("ScreenGui", {
     ResetOnSpawn = false,
     DisplayOrder = 10,
     Parent = game.CoreGui,
-    ScreenInsets = Enum.ScreenInsets.None
+    ScreenInsets = Enum.ScreenInsets.None,
+    ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 })
 
-
+InputService.InputBegan:Connect(function(input, busy)
+    if input.UserInputType == Enum.UserInputType.Keyboard and not busy and input.KeyCode == Enum.KeyCode.Semicolon then
+        UI.Active = not UI.Active
+        for i,Window in next,Screengui:GetChildren() do
+            if Window:IsA("CanvasGroup") then
+                Tween(Window,0.1,{GroupTransparency = UI.Active and 0 or 1})
+            end
+        end
+    end
+end)
 
 function UI.CreateWindow(parameters : table)
-    local Window = Create("Frame", {
+    local Window = Create("CanvasGroup", {
         Name = "Window",
-        AnchorPoint = Vector2.new(0.5, 0.5),
-        Size = UDim2.new(0, 650, 0, 450),
-        Position = UDim2.new(0.5, 0, 0.5, 0),
+        AnchorPoint = parameters.Position == UDim2.new(0.5,0,0.5,0) or not parameters.Position and Vector2.new(0.5,0.5) or Vector2.new(0,0),
+        Size = parameters.Size or UDim2.new(0, 700, 0, 500),
+        Position = parameters.Position or UDim2.new(0.5, 0, 0.5, 0),
         BackgroundColor3 = UI.Theme.Background,
         BorderSizePixel = 0,
         CornerRadius = UDim.new(0, 10),
@@ -318,7 +373,7 @@ function UI.InitCodeEditor(parameters : table)
     }
     local CodeEditor = Create("Frame", {
         Name = "CodeEditor",
-        Size = UDim2.new(1, 0, 1, -60),
+        Size = UDim2.new(1, 0, 1, -90),
         Position = UDim2.new(0, 0, 0, 40),
         BackgroundTransparency = 1,
         BorderSizePixel = 0,
@@ -329,6 +384,34 @@ function UI.InitCodeEditor(parameters : table)
             Left = 0,
             Right = 0
         }
+    })
+
+    local ExecuteButton = Create("TextButton",{
+        Parent = CodeEditor,
+        BackgroundColor3 = UI.Theme.SubText,
+        BackgroundTransparency = 0.8,
+        CornerRadius = UDim.new(0,5),
+        Position = UDim2.new(0,16,1,14),
+        Size = UDim2.new(0,150,0,50),
+        Text = "Execute",
+        FontFace = UI.Theme.Fonts.Regular,
+        TextColor3 = UI.Theme.Text,
+        TextSize = 24,
+        ClipsDescendants = true
+    })
+
+    local ClearButton = Create("TextButton",{
+        Parent = CodeEditor,
+        BackgroundColor3 = UI.Theme.SubText,
+        BackgroundTransparency = 0.8,
+        CornerRadius = UDim.new(0,5),
+        Position = UDim2.new(0,182,1,14),
+        Size = UDim2.new(0,150,0,50),
+        Text = "Clear",
+        FontFace = UI.Theme.Fonts.Regular,
+        TextColor3 = UI.Theme.Text,
+        TextSize = 24,
+        ClipsDescendants = true
     })
 
     local TabsNavigation = Create("Frame", {
@@ -384,7 +467,7 @@ function UI.InitCodeEditor(parameters : table)
         Parent = CodeBoxScroller,
         FontFace = Font.fromName("Ubuntu"),
         TextColor3 = Color3.fromRGB(255,255,255),
-        TextSize = 20,
+        TextSize = 16,
         ClearTextOnFocus = false,
         MultiLine = true,
         Pad = {
@@ -405,7 +488,7 @@ function UI.InitCodeEditor(parameters : table)
     local Cursor = Create("Frame",{
         Parent = CodeTextBox,
         Size = UDim2.new(0, 1, 0, 20),
-        BackgroundColor3 = Color3.new(0, 0, 0),
+        BackgroundColor3 = UI.Theme.Text,
         BackgroundTransparency = 0,
         Visible = true,
     })
@@ -416,7 +499,7 @@ function UI.InitCodeEditor(parameters : table)
     Overlay.BackgroundTransparency = 1
     Overlay.TextColor3 = Color3.fromRGB(0,0,0)
     Overlay.RichText = true
-    Overlay.TextSize = 20
+    Overlay.TextSize = CodeTextBox.TextSize
     Overlay.Text = ""
     Overlay.TextTransparency = 0
     Overlay.Font = Enum.Font.Ubuntu
@@ -713,6 +796,37 @@ function UI.InitCodeEditor(parameters : table)
         InputBox:CaptureFocus()
     end)
 
+
+
+    ExecuteButton.MouseButton1Click:Connect(function()
+        createRipple(ExecuteButton,UI.Theme.Text)
+        task.spawn(function()
+            loadstring(CodeTextBox.Text)()
+        end)
+    end)
+
+    ExecuteButton.MouseEnter:Connect(function()
+        Tween(ExecuteButton,0.3,{BackgroundTransparency = 0.5})
+    end)
+
+    ExecuteButton.MouseLeave:Connect(function()
+        Tween(ExecuteButton,0.3,{BackgroundTransparency = 0.8})
+    end)
+
+
+    ClearButton.MouseButton1Click:Connect(function()
+        CodeTextBox.Text = ""
+        createRipple(ClearButton,UI.Theme.Danger)
+    end)
+
+    ClearButton.MouseEnter:Connect(function()
+        Tween(ClearButton,0.3,{BackgroundTransparency = 0.5; BackgroundColor3 = UI.Theme.Danger})
+    end)
+    
+    ClearButton.MouseLeave:Connect(function()
+        Tween(ClearButton,0.3,{BackgroundTransparency = 0.8; BackgroundColor3 = UI.Theme.SubText})
+    end)
+
     if not findExistingTabs() then
         Editor.AddTab("Tab1")
     end
@@ -720,10 +834,218 @@ function UI.InitCodeEditor(parameters : table)
     return CodeEditor
 end
 
+UI.InitLogs = function(parameters)
+    local Logs  = {
+        Messages = {},
+        Elements = {},
+        MessageColors = {
+            MessageError = {Color3.fromRGB(255,50,0), "rbxassetid://3926305904", Vector2.new(964, 84), Vector2.new(36,36),true},
+            MessageWarning = {Color3.fromRGB(255,150,0), "rbxassetid://3926305904", Vector2.new(364, 324), Vector2.new(36,36),true},
+            MessageOutput = {Color3.fromRGB(230,230,230), "rbxassetid://3926305904", Vector2.new(764, 444), Vector2.new(36,36),true}
+        }
+    }
+    
+    
+    local HaveFunction = pcall(function()
+        hookfunction()
+    end)
+    
+    
+    local http = game:GetService("HttpService")
+    
+    
+    if not getgenv().oldwarn then
+        getgenv().oldwarn = hookfunction(warn,function(...)
+            local str =  (typeof(...) == "table" and http:JSONEncode(...) or ...)
+            return getgenv().oldwarn((typeof(...) == "table" and string.sub(str,1,-1) or str))
+        end)
+    
+        getgenv().oldprint = hookfunction(print,function(...)
+            local str =  (typeof(...) == "table" and http:JSONEncode(...) or ...)
+            return getgenv().oldprint((typeof(...) == "table" and string.sub(str,1,-1) or str))
+        end)
+    
+        getgenv().olderror = hookfunction(error,function(...)
+            local str =  (typeof(...) == "table" and http:JSONEncode(...) or ...)
+            return getgenv().olderror((typeof(...) == "table" and string.sub(str,1,-1) or str))
+        end)
+    end
+
+
+    local MessagesFrame = Create("ScrollingFrame",{
+        Parent = parameters.Parent,
+        Name = "MessagesFrame",
+        Size = UDim2.new(1, 0, 1, -40),
+        Position = UDim2.new(0,0,0,40),
+        BackgroundTransparency = 1,
+        CanvasSize = UDim2.new(0,0,0,0),
+        ScrollBarThickness = 5,
+        ScrollBarImageColor3 = UI.Theme.SubText,
+        BorderSizePixel = 0,
+        AutomaticCanvasSize = Enum.AutomaticSize.XY,
+    })
+    
+    MessagesFrame:GetPropertyChangedSignal("AbsoluteCanvasSize"):Connect(function()
+        Tween(MessagesFrame,0.3,{
+            CanvasPosition = Vector2.new(0,MessagesFrame.AbsoluteCanvasSize.Y)
+        })
+    end)
+    
+    local ListLayout = Create("UIListLayout",{
+        Parent = MessagesFrame,
+        Name = "ListLayout",
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        Padding = UDim.new(0,5),
+        FillDirection = Enum.FillDirection.Vertical
+    })
+
+    Logs.Add = function(message,Type)
+        local msgFrame = Create("CanvasGroup",{
+            Parent = MessagesFrame,
+            Name = "msg",
+            Size = UDim2.new(1,-10,0,0),
+            AutomaticSize = Enum.AutomaticSize.Y,
+            BackgroundTransparency = 0,
+            GroupTransparency = 1,
+            BackgroundColor3 = UI.Theme.SecondaryBackground,
+            BorderSizePixel = 0,
+            CornerRadius = UDim.new(0,8),
+        })
+
+
+        msgFrame:SetAttribute("Type",Type)
+
+        Tween(msgFrame,0.1,{GroupTransparency = (Logs.MessageColors[Type][5] and 0 or 1)})
+        msgFrame.Visible = (Logs.MessageColors[Type][5] and true or false)
+
+        Tween(msgFrame,0.3,{GroupTransparency = 0})
+
+        local padding = Create("UIPadding",{
+            Parent = msgFrame,
+            Name = "Padding",
+            PaddingTop = UDim.new(0,10),
+            PaddingBottom = UDim.new(0,10),
+            PaddingLeft = UDim.new(0,10),
+            PaddingRight = UDim.new(0,10)
+        })
+
+
+        local TypeIcon = Create("ImageLabel",{
+            Parent = msgFrame,
+            Name = "TypeIcon",
+            Size = UDim2.new(0,20,0,20),
+            Position = UDim2.new(0,0,0,0),
+            BackgroundTransparency = 1,
+            ImageTransparency = 0,
+            ImageColor3 = Logs.MessageColors[Type][1],
+            Image = Logs.MessageColors[Type][2],
+            ScaleType = Enum.ScaleType.Fit,
+            ImageRectOffset = Logs.MessageColors[Type][3],
+            ImageRectSize = Logs.MessageColors[Type][4],
+            BackgroundColor3 = Color3.fromRGB(0,0,0),
+            CornerRadius = UDim.new(0,8)
+        })
+
+
+        local msg = Create("TextLabel",{
+            Parent = msgFrame,
+            Name = "Message",
+            Size = UDim2.new(1,-40,0,0),
+            Position = UDim2.new(0,40,0,0),
+            AutomaticSize = Enum.AutomaticSize.Y,
+            BackgroundTransparency = 0,
+            BackgroundColor3 = UI.Theme.SecondaryBackground,
+            TextColor3 = UI.Theme.Text,
+            TextSize = 18,
+            Text = "",
+            FontFace = Font.fromId(12187365364),
+            TextXAlignment = Enum.TextXAlignment.Left,
+            TextYAlignment = Enum.TextYAlignment.Center,
+            RichText = true,
+            TextWrapped = true,
+            CornerRadius = UDim.new(0,8),
+            Selectable = true,
+            ZIndex = 1
+        })
+
+        local fakemsg = Create("TextBox",{
+            Parent = msgFrame,
+            Name = "Message",
+            Size = UDim2.new(1,-40,0,0),
+            Position = UDim2.new(0,40,0,18),
+            AutomaticSize = Enum.AutomaticSize.Y,
+            BackgroundTransparency = 1,
+            TextSize = 18,
+            TextTransparency = 1,
+            Text = "",
+            FontFace = Font.fromId(12187365364),
+            TextXAlignment = Enum.TextXAlignment.Left,
+            TextYAlignment = Enum.TextYAlignment.Center,
+            RichText = true,
+            TextWrapped = true,
+            CornerRadius = UDim.new(0,8),
+            Selectable = true,
+            TextEditable = false,
+            ClearTextOnFocus = false,
+            ZIndex = 2
+        })
+
+
+        local CustomHighlight = Create("Frame",{
+            Parent = fakemsg,
+            Name = "CustomHighlight",
+            AnchorPoint = Vector2.new(0,0.5),
+            Size = UDim2.new(0,0,1,0),
+            Position = UDim2.new(0,-2,0.5,0),
+            BackgroundTransparency = 0.8,
+            BackgroundColor3 = UI.Theme.Accent,
+            ZIndex = -3
+        })
+
+        msg.Text = "| " .. os.date("%X").." |\n" .. '<font color="#' .. tostring(Logs.MessageColors[Type][1]:ToHex()) .. '">' .. message .. " </font>"
+        fakemsg.Text = message
+
+        msgFrame.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                if not fakemsg:IsFocused() then
+                    fakemsg:CaptureFocus()
+                end
+            end
+        end)
+
+        fakemsg.Focused:Connect(function()
+            fakemsg.CursorPosition = #fakemsg.Text + 1
+            fakemsg.SelectionStart = 1
+            Tween(CustomHighlight,0.1,{Size = UDim2.new(0,fakemsg.TextBounds.X + 4,0,fakemsg.TextBounds.Y + 4)})
+        end)
+
+        fakemsg.FocusLost:Connect(function()
+            Tween(CustomHighlight,0.1,{Size = UDim2.new(0,0,0,fakemsg.TextBounds.Y + 2)})
+        end)
+        print("newmsg")
+    end
+    LogService.MessageOut:Connect(function(message, messageType)
+        Logs.Add(message, string.gsub(tostring(messageType),"Enum.MessageType.", ""))
+    end)
+
+end
+
+
+
 local Editor = UI.CreateWindow({
     Title = "Code"
 })
 
 UI.InitCodeEditor({
     Parent = Editor
+})
+
+local Logs = UI.CreateWindow({
+    Title = "Logs",
+    Position = UDim2.new(0,32,0,32),
+    Size = UDim2.new(0,500,0.8,0)
+})
+
+UI.InitLogs({
+    Parent = Logs
 })
