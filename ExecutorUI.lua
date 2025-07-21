@@ -356,7 +356,7 @@ function UI.InitCodeEditor(parameters : table)
         Parent = TabsNavigation
     })
 
-    local CodeTextBox = Create("Frame", {
+    local CodeTextBox = Create("TextBox", {
         Name = "CodeTextBox",
         Size = UDim2.new(1, -20, 1, -40),
         Position = UDim2.new(0, 16, 0, 48),
@@ -366,11 +366,13 @@ function UI.InitCodeEditor(parameters : table)
         Parent = CodeEditor,
         FontFace = UI.Theme.Fonts.Regular,
         TextColor3 = Color3.fromRGB(255,255,255),
-        TextSize = 18
+        TextSize = 22,
+        ClearTextOnFocus = false,
+        MultiLine = true,
     })
     local InputBox = CodeTextBox
 
-    CodeTextBox.highlight({
+    Highlighter.highlight({
         textObject = CodeTextBox,
     })
 

@@ -1,14 +1,15 @@
 local DEFAULT_TOKEN_COLORS = {
-	["background"] = Color3.fromRGB(47, 47, 47),
-	["iden"] = Color3.fromRGB(234, 234, 234),
-	["keyword"] = Color3.fromRGB(215, 174, 255),
-	["builtin"] = Color3.fromRGB(131, 206, 255),
-	["string"] = Color3.fromRGB(196, 255, 193),
-	["number"] = Color3.fromRGB(255, 125, 125),
-	["comment"] = Color3.fromRGB(140, 140, 155),
-	["operator"] = Color3.fromRGB(255, 239, 148),
-	["custom"] = Color3.fromRGB(119, 122, 255),
+    ["background"] = Color3.fromRGB(230, 230, 230),       -- Белый фон
+    ["iden"] = Color3.fromRGB(50, 50, 70),                -- Основной текст (идентификаторы)
+    ["keyword"] = Color3.fromRGB(133, 35, 125),           -- Ключевые слова (фиолетовый)
+    ["builtin"] = Color3.fromRGB(0, 112, 201),            -- Встроенные функции (синий)
+    ["string"] = Color3.fromRGB(46, 147, 68),             -- Строки (зелёный)
+    ["number"] = Color3.fromRGB(255, 89, 46),             -- Числа (оранжево-красный)
+    ["comment"] = Color3.fromRGB(127, 144, 148),          -- Комментарии (серо-голубой)
+    ["operator"] = Color3.fromRGB(230, 162, 60),          -- Операторы (золотисто-жёлтый)
+    ["custom"] = Color3.fromRGB(87, 130, 202),            -- Пользовательские элементы (индиго)
 }
+
 local function GetModule(Path : string)
 	return loadstring(game:HttpGet("https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/NewHighlighter/" .. Path))()
 end
