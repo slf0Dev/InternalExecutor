@@ -10,11 +10,16 @@ local DEFAULT_TOKEN_COLORS = {
     ["custom"] = Color3.fromRGB(87, 130, 202),            -- Пользовательские элементы (индиго)
 }
 
+
 local function GetModule(Path : string)
-	return loadstring(game:HttpGet("https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/NewHighlighter/" .. Path))()
+	return loadstring(game:HttpGet("https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/" .. Path))()
 end
 
-local types = GetModule("types.lua")
+local EditorThemes = GetModule("Themes.lua")
+
+DEFAULT_TOKEN_COLORS = EditorThemes.LightDefault.TokenColors
+
+local types = GetModule("NewHighlighter/types.lua")
 
 local Theme = {
 	tokenColors = {},

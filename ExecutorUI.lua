@@ -360,7 +360,7 @@ function UI.InitCodeEditor(parameters : table)
         Name = "CodeTextBox",
         Size = UDim2.new(1, -20, 1, -40),
         Position = UDim2.new(0, 16, 0, 48),
-        BackgroundTransparency = 1,
+        BackgroundTransparency = 0,
         BackgroundColor3 = UI.Theme.SecondaryBackground,
         CornerRadius = UDim.new(0, 5),
         Parent = CodeEditor,
@@ -369,6 +369,12 @@ function UI.InitCodeEditor(parameters : table)
         TextSize = 22,
         ClearTextOnFocus = false,
         MultiLine = true,
+        Pad = {
+            Top = 8,
+            Bottom = 8,
+            Left = 40,
+            Right = 8
+        }
     })
     local InputBox = CodeTextBox
 
@@ -436,24 +442,13 @@ function UI.InitCodeEditor(parameters : table)
             end
         end
     end
-
-    _G.Editor = {
-        loadExistingTabs = loadExistingTabs,
-        SwapTab = SwapTab,
-        UpdateTabs = Editor.UpdateTabs,
-        findExistingTabs = findExistingTabs,
-        saveTabContent = saveTabContent,
-        Editor = Editor
-    }
-
-
-
+    _G.SaveTab = saveTabContent
     InputBox = CodeTextBox
-    --[[CodeTextBox:GetPropertyChangedSignal("Text"):Connect(function()
+    CodeTextBox:GetPropertyChangedSignal("Text"):Connect(function()
         if Editor.ActiveTab then
             saveTabContent(Editor.ActiveTab.Name, CodeTextBox.Text)
         end
-    end)]]
+    end)
 
 
     Editor.UpdateTabs = function()
@@ -542,6 +537,7 @@ function UI.InitCodeEditor(parameters : table)
         Editor.ActiveTab = newTab.Instance
         InputBox.Text = ""
         Editor.TabContents[newTab.Name] = ""
+        SwapTab(Editor.ActiveTab.Name)
     end)
 
     if not findExistingTabs() then
