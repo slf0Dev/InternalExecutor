@@ -7,7 +7,6 @@ local Repository = "https://raw.githubusercontent.com/slf0Dev/InternalExecutor/r
 
 local Themes = loadstring(game:HttpGet(Repository.."Themes.lua"))()
 local Highlighter = loadstring(readfile("InternalExecutor/NewHighlighter/init.lua"))()
---local IDE = loadstring(readfile("InternalExecutor/Highlighter/IDE_STRIPPED.lua"))()
 
 
 local UI = {
@@ -110,11 +109,11 @@ local function Observable(initialValue)
 end
 
 
-local HasProperty = function(instance, property) -- Currently not so reliable. Tests if instance has a certain property
+local HasProperty = function(instance, property)
 	local successful = pcall(function()
 		return instance[property]
 	end)
-	return successful and not instance:FindFirstChild(property) -- Fails if instance DOES have a child named a property, will fix soon
+	return successful and not instance:FindFirstChild(property)
 end
 
 
@@ -202,8 +201,8 @@ local function ApplyDragging(Window)
         local mag = force.Magnitude - 1
         force = force.Unit
         force *= 1 * k * mag
-        local formula = speed * force --* delta
-        --Tween(Window,0.3,{Rotation = formula.X},"Back")
+        local formula = speed * force
+        Tween(Window,0.3,{Rotation = formula.X},"Back")
     end
     
     local c = Window.InputBegan:Connect(function(input)
@@ -216,7 +215,7 @@ local function ApplyDragging(Window)
                 input.Changed:Connect(function()
                     if input.UserInputState == Enum.UserInputState.End then
                         dragging = false
-                        --Tween(Window,0.3,{Rotation = 0},"Back")
+                        Tween(Window,0.3,{Rotation = 0},"Back")
                     end
                 end)
             end
@@ -307,16 +306,14 @@ function UI.CreateWindow(parameters : table)
     return Window
 end
 
--- ... (предыдущий код остается без изменений до функции UI.InitCodeEditor)
 
--- ... (предыдущий код остается без изменений до функции UI.InitCodeEditor)
 
 function UI.InitCodeEditor(parameters : table)
     local Editor = {
         Tabs = {},
         ActiveTab = nil,
-        TabContents = {}, -- Хранит содержимое вкладок
-        TabCount = 0, -- Счетчик вкладок
+        TabContents = {},
+        TabCount = 0,
     }
     local CodeEditor = Create("Frame", {
         Name = "CodeEditor",
@@ -489,32 +486,32 @@ function UI.InitCodeEditor(parameters : table)
         local fullText = TextBox.Text or ""
         cursorPos = math.clamp(cursorPos, 1, #fullText + 1)
         
-        -- Получаем текст до курсора
+
         local preText = fullText:sub(1, cursorPos - 1)
         
-        -- Получаем параметры текста
+
         local fontSize = TextBox.TextSize
         local font = TextBox.Font
         local textWidth = TextBox.AbsoluteSize.X
         
-        -- Рассчитываем высоту одной строки
+
         local lineHeight = TextService:GetTextSize(
-            "W",  -- Произвольный символ для измерения
+            "W",
             fontSize,
             font,
             Vector2.new(math.huge, math.huge)
         ).Y
         
-        -- Разбиваем текст на строки
+
         local lines = {}
         for line in (preText.."\n"):gmatch("(.-)\n") do
             table.insert(lines, line)
         end
         
-        -- Текст текущей строки
+
         local currentLine = lines[#lines] or ""
         
-        -- Рассчитываем смещение по X для текущей строки
+
         local offsetX = TextService:GetTextSize(
             currentLine,
             fontSize,
@@ -522,14 +519,14 @@ function UI.InitCodeEditor(parameters : table)
             Vector2.new(math.huge, math.huge)
         ).X
         
-        -- Рассчитываем смещение по Y (номер строки - 1)
+
         local offsetY = (#lines - 1) * lineHeight
         
 
 
         Tween(Cursor,0.1,{Position = UDim2.fromOffset(offsetX,offsetY)})
         
-        -- Устанавливаем правильную высоту курсора
+
         Cursor.Size = UDim2.new(0, 2, 0, lineHeight)
         
         Cursor.Visible = true
@@ -574,7 +571,7 @@ function UI.InitCodeEditor(parameters : table)
             if typeof(tabs) ~= "table" then
                 return false
             end
-            local fileName = filePath:split([[\]])[2] -- Получаем имя файла без пути
+            local fileName = filePath:split([[\]])[2]
             if fileName then
                 tabs[fileName] = readfile(filePath)
             end
@@ -705,7 +702,7 @@ function UI.InitCodeEditor(parameters : table)
     })
 
 
-    --Editor.AddTab()
+
     AddTabButton.MouseButton1Click:Connect(function()
         local newTab = Editor.AddTab()
         Editor.ActiveTab = newTab.Instance
