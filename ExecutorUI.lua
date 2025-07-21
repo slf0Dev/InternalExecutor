@@ -6,8 +6,8 @@ local InputService = game:GetService("UserInputService");
 local Repository = "https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/"
 
 local Themes = loadstring(game:HttpGet(Repository.."Themes.lua"))()
-local Highlighter = loadstring(game:HttpGet(Repository.."Highlighter/HighlighterModule.lua"))()
-local IDE = loadstring(readfile("InternalExecutor/Highlighter/IDE_STRIPPED.lua"))()
+local Highlighter = loadstring(game:HttpGet(Repository.."NewHighlighter/init.lua"))()
+--local IDE = loadstring(readfile("InternalExecutor/Highlighter/IDE_STRIPPED.lua"))()
 
 
 local UI = {
@@ -364,11 +364,15 @@ function UI.InitCodeEditor(parameters : table)
         BackgroundColor3 = UI.Theme.SecondaryBackground,
         CornerRadius = UDim.new(0, 5),
         Parent = CodeEditor,
+        FontFace = UI.Theme.Fonts.Regular,
+        TextColor3 = Color3.fromRGB(255,255,255),
+        TextSize = 18
     })
-    local InputBox = Create("TextLabel",{
-        
-    })
+    local InputBox = CodeTextBox
 
+    CodeTextBox.highlight({
+        textObject = CodeTextBox,
+    })
 
     local function ensureDirectory()
         if not isfolder("OceriumExec") then
@@ -441,8 +445,8 @@ function UI.InitCodeEditor(parameters : table)
     }
 
 
-    IDE.new(CodeTextBox)
-    InputBox = CodeTextBox:FindFirstChild("Input", true)
+
+    InputBox = CodeTextBox
     --[[CodeTextBox:GetPropertyChangedSignal("Text"):Connect(function()
         if Editor.ActiveTab then
             saveTabContent(Editor.ActiveTab.Name, CodeTextBox.Text)

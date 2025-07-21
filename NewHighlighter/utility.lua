@@ -1,4 +1,8 @@
-local types = require(script.Parent.types)
+local function GetModule(Path : string)
+	return loadstring(game:HttpGet("https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/NewHighlighter" .. Path))()
+end
+
+local types = GetModule("types.lua")
 
 local Utility = {}
 

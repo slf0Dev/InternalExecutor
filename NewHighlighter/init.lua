@@ -1,9 +1,13 @@
-local types = require(script.types)
-local utility = require(script.utility)
-local theme = require(script.theme)
+local function GetModule(Path : string)
+	return loadstring(game:HttpGet("https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/NewHighlighter" .. Path))()
+end
+
+local types = GetModule("types.lua")
+local utility = GetModule('utility.lua')
+local theme = GetModule("theme.lua")
 
 local Highlighter = {
-	defaultLexer = require(script.lexer) :: types.Lexer,
+	defaultLexer = GetModule("initlexer.lua") :: types.Lexer,
 
 	_textObjectData = {} :: { [types.TextObject]: types.ObjectData },
 	_cleanups = {} :: { [types.TextObject]: () -> () },
