@@ -202,7 +202,7 @@ local function ApplyDragging(Window)
         force = force.Unit
         force *= 1 * k * mag
         local formula = speed * force
-        Tween(Window,0.3,{Rotation = formula.X},"Back")
+        --Tween(Window,0.3,{Rotation = formula.X},"Back")
     end
     
     local c = Window.InputBegan:Connect(function(input)
@@ -215,7 +215,7 @@ local function ApplyDragging(Window)
                 input.Changed:Connect(function()
                     if input.UserInputState == Enum.UserInputState.End then
                         dragging = false
-                        Tween(Window,0.3,{Rotation = 0},"Back")
+                        --Tween(Window,0.3,{Rotation = 0},"Back")
                     end
                 end)
             end
