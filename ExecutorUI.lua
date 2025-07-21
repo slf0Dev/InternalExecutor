@@ -7,7 +7,7 @@ local LogService = game:GetService("LogService")
 
 local Repository = "https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/"
 
-local Themes = loadstring(game:HttpGet(Repository.."Themes.lua"))()
+_G.Themes = loadstring(game:HttpGet(Repository.."Themes.lua"))()
 
 
 local UI = {
@@ -16,7 +16,19 @@ local UI = {
     Active = true
 }
 
-Themes.CurrentTheme = UI.Theme
+local function deepCopy(original)
+	local copy = {}
+	for k, v in pairs(original) do
+		if type(v) == "table" then
+			v = deepCopy(v)
+		end
+		copy[k] = v
+	end
+	return copy
+end
+
+print(deepCopy(UI.Theme))
+Themes.CurrentTheme = deepCopy(UI.Theme)
 local Highlighter = loadstring(readfile("InternalExecutor/NewHighlighter/init.lua"))()
 
 

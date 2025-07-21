@@ -15,7 +15,7 @@ local function GetModule(Path : string)
 	return loadstring(game:HttpGet("https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/" .. Path))()
 end
 
-local EditorThemes = GetModule("Themes.lua")
+local EditorThemes = _G.Themes
 
 DEFAULT_TOKEN_COLORS = EditorThemes.CurrentTheme.TokenColors
 

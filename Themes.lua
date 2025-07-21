@@ -1,5 +1,7 @@
 local Themes = {}
 
+Themes.CurrentTheme = {}
+
 Themes.LightDefault = {
     Accent = Color3.fromRGB(60, 119, 247),  -- blue
     Secondary = Color3.fromRGB(255, 120, 200),  -- pink
