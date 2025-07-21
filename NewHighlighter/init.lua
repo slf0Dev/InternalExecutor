@@ -336,7 +336,7 @@ function Highlighter.highlight(props: types.HighlightProps): () -> ()
 		Parent = textObject,
 		Text = "",
 		FontFace = Font.fromName("Ubuntu",Enum.FontWeight.Regular, Enum.FontStyle.Normal),
-		TextColor3 = Themes.DarkDefault.SubText,
+		TextColor3 = Themes.CurrentTheme.SubText,
 		TextSize = textObject.TextSize,
 		Position = UDim2.new(0,-42,0,0),
 		Size = UDim2.new(0,40,1,0),
@@ -351,7 +351,7 @@ function Highlighter.highlight(props: types.HighlightProps): () -> ()
 	local LinesDivider = Create("Frame",{
 		Parent = LinesCounter,
 		Size = UDim2.new(0,1,1,0),
-		BackgroundColor3 = Themes.DarkDefault.SubText,
+		BackgroundColor3 = Themes.CurrentTheme.SubText,
 		Position = UDim2.new(1,4,0,0)
 	})
 
