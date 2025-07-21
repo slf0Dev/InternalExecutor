@@ -50,7 +50,7 @@ local COMMENT_INCOMP = "%-%-.*" --Incompleted Singleline-Comment
 -- local TYPED_VAR = ":%s*([%w%?%| \t]+%s*)" --Typed variable, parameter, function
 
 local function GetModule(Path : string)
-	return loadstring(game:HttpGet("https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/NewHighlighter" .. Path))()
+	return loadstring(game:HttpGet("https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/NewHighlighter/" .. Path))()
 end
 
 local lang = GetModule("language.lua")

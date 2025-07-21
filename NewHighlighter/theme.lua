@@ -10,7 +10,7 @@ local DEFAULT_TOKEN_COLORS = {
 	["custom"] = Color3.fromRGB(119, 122, 255),
 }
 local function GetModule(Path : string)
-	return loadstring(game:HttpGet("https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/NewHighlighter" .. Path))()
+	return loadstring(game:HttpGet("https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/NewHighlighter/" .. Path))()
 end
 
 local types = GetModule("types.lua")
