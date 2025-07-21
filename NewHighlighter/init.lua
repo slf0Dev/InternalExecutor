@@ -92,6 +92,7 @@ function Highlighter._getLabelingInfo(textObject: types.TextObject)
 	end
 
 	local src = utility.convertTabsToSpaces(utility.removeControlChars(textObject.Text))
+
 	local numLines = #string.split(src, "\n")
 	if numLines == 0 then
 		return

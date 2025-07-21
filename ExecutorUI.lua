@@ -532,7 +532,7 @@ function UI.InitCodeEditor(parameters : table)
         Cursor.Visible = true
     end
 
-    CodeTextBox:GetPropertyChangedSignal("SelectionStart"):Connect(updateOverlay)
+    CodeTextBox:GetPropertyChangedSignal("SelectionStart"):Connect(updateSelection)
     CodeTextBox:GetPropertyChangedSignal("CursorPosition"):Connect(function()
         updateSelection()
         updateCursor()
@@ -614,6 +614,13 @@ function UI.InitCodeEditor(parameters : table)
             updateCursor()
             updateSelection()
             saveTabContent(Editor.ActiveTab.Name, CodeTextBox.Text)
+        end
+    end)
+
+    InputService.InputBegan:Connect(function(input, gameProcessedEvent)
+        if input.KeyCode == Enum.KeyCode.Tab and CodeTextBox:IsFocused() then
+            CodeTextBox.Text = string.gsub(CodeTextBox.Text, "\t", "____")
+            CodeTextBox.CursorPosition = CodeTextBox.CursorPosition + 5
         end
     end)
 
