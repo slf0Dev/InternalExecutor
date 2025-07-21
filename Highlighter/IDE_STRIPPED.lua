@@ -4,7 +4,7 @@ local Repository = "https://raw.githubusercontent.com/slf0Dev/InternalExecutor/r
 
 local TS = game:GetService("TextService")
 local RS = game:GetService("RunService")
-local Highlighter = loadstring(game:HttpGet(Repository.. "Highlighter/HighlighterModule.lua"))()
+local Highlighter = loadstring(readfile("InternalExecutor/Highlighter/HighlighterModule.lua"))()
 
 -- Weird Luau VM optimizations
 local ipairs	= ipairs
@@ -48,8 +48,9 @@ function IDEModule.new(ParentFrame)
 	Input.TextSize					= TextSize
 	Input.Text						= ""
 	Input.BorderSizePixel			= 0
-	Input.FontFace						= Font.fromName("Rubik")
-	Input.TextColor3				= Color3.fromRGB(0,0,0)
+	Input.Font						= Enum.Font.Code
+	Input.TextColor3				= Color3.fromRGB(30,30,30)
+	Input.TextTransparency = 0
 	Input.TextXAlignment			= Enum.TextXAlignment.Left
 	Input.TextYAlignment			= Enum.TextYAlignment.Top
 	Input.Active					= false
@@ -59,7 +60,7 @@ function IDEModule.new(ParentFrame)
 	local Lines = Instance.new("Frame")
 
 	Lines.Name						= "Lines"
-	Lines.BackgroundTransparency	= 0.9
+	Lines.BackgroundTransparency	= 1
 	Lines.BackgroundColor3			= Color3.new()
 	Lines.Size						= UDim2.new(0,TextSize*2.5,1,0)
 	Lines.BorderSizePixel			= 0
@@ -76,11 +77,13 @@ function IDEModule.new(ParentFrame)
 	LineMarker.BackgroundTransparency	= 1
 	LineMarker.LayoutOrder				= 1
 	LineMarker.TextSize					= TextSize
-	LineMarker.FontFace						= Font.fromName("Rubik")
+	LineMarker.Font						= Enum.Font.Code
 	LineMarker.TextColor3				= Color3.fromRGB(0,0,0)
 	LineMarker.TextXAlignment			= Enum.TextXAlignment.Right
 	LineMarker.Size						= UDim2.new(1,0,0,TextSize)
 	LineMarker.Text						= "1 "
+
+
 
 	LineMarker.MouseButton1Click:Connect(function()
 		local Lines = string.split(Input.Text,"\n")
@@ -165,17 +168,8 @@ function IDEModule.new(ParentFrame)
 		end
 
 		-- Handle autosizing the scrollingframe
-		local params = Instance.new("GetTextBoundsParams")
-		params.Text = Text
-		params.Font = Font.new("rbxassetid://12187365977")
-		params.Size = TextSize
-		params.Width = 1
-		local TextBounds = TS:GetTextBoundsAsync(params)
-		--local TextBounds = game:GetService("TextService"):GetTextSize(Text,TextSize,Enum.Font.Code,Vector2.new(9999,9999))
-		Scroller.CanvasSize = UDim2.new(
-			0,TextBounds.X+Input.Position.X.Offset+TextSize,
-			0,TextBounds.Y+Scroller.AbsoluteWindowSize.Y-TextSize
-		)
+		--local TextBounds = game:GetService("TextService"):GetTextSize(Text,TextSize,Enum.Font.Arial,Vector2.new(9999,9999))
+		Scroller.AutomaticCanvasSize = Enum.AutomaticSize.Y
 
 		PreviousLength = #Text
 		IDE.Content = Input.Text

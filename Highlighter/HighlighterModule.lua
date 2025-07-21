@@ -50,7 +50,7 @@ local ipairs	= ipairs
 local TokenTemplate = Instance.new("TextLabel")
 	TokenTemplate.Name = "Token"
 	TokenTemplate.BackgroundTransparency = 1
-	TokenTemplate.FontFace = Font.fromName("Rubik")
+	TokenTemplate.Font = Enum.Font.Code
 	TokenTemplate.TextColor3 = Color3.new(1,1,1)
 	TokenTemplate.TextXAlignment = Enum.TextXAlignment.Left
 	TokenTemplate.TextYAlignment = Enum.TextYAlignment.Top
@@ -156,7 +156,7 @@ function Module:Highlight(TextObject)
 	-- Gather data for the TextObject
 	local Source		= TextObject.Text
 	local TextSize		= TextObject.TextSize
-	local TextSizeX		= math.ceil(TextSize*0.2)
+	local TextSizeX		= math.ceil(TextSize*0.5)
 	local LineHeight	= TextSize*TextObject.LineHeight
 	
 	-- Init counters and indexes
