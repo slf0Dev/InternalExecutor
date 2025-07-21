@@ -1,11 +1,11 @@
 local function GetModule(Path)
-	return loadstring(game:HttpGet("https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/NewHighlighter/" .. Path))()
+	return loadstring(game:HttpGet("https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/" .. Path))()
 end
 
-local types = GetModule("types.lua")
-local utility = GetModule('utility.lua')
-local theme = GetModule("theme.lua")
-
+local types = GetModule("NewHighlighter/types.lua")
+local utility = GetModule('NewHighlighter/utility.lua')
+local theme = GetModule("NewHighlighter/theme.lua")
+local Themes = GetModule("Themes.lua")
 
 local HasProperty = function(instance, property) -- Currently not so reliable. Tests if instance has a certain property
 	local successful = pcall(function()
@@ -81,6 +81,7 @@ local Highlighter = {
 	_textObjectData = {} :: { [types.TextObject]: types.ObjectData },
 	_cleanups = {} :: { [types.TextObject]: () -> () },
 }
+
 
 --[[
 	Gathers the info that is needed in order to set up a line label.
@@ -335,7 +336,7 @@ function Highlighter.highlight(props: types.HighlightProps): () -> ()
 		Parent = textObject,
 		Text = "",
 		FontFace = Font.fromName("Ubuntu",Enum.FontWeight.Regular, Enum.FontStyle.Normal),
-		TextColor3 = Color3.fromRGB(30,30,30),
+		TextColor3 = Themes.DarkDefault.SubText,
 		TextSize = 22,
 		Position = UDim2.new(0,-44,0,0),
 		Size = UDim2.new(0,40,1,0),
