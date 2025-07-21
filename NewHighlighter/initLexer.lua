@@ -49,6 +49,10 @@ local COMMENT_PLAIN = "%-%-.-\n" --Completed Singleline-Comment
 local COMMENT_INCOMP = "%-%-.*" --Incompleted Singleline-Comment
 -- local TYPED_VAR = ":%s*([%w%?%| \t]+%s*)" --Typed variable, parameter, function
 
+local function GetModule(Path : string)
+	return loadstring(game:HttpGet("https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/" .. ))
+end
+
 local lang = require(script.language)
 local lua_keyword = lang.keyword
 local lua_builtin = lang.builtin
