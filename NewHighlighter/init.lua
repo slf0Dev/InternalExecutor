@@ -334,7 +334,7 @@ function Highlighter.highlight(props: types.HighlightProps): () -> ()
 	local LinesCounter = Create("TextLabel",{
 		Parent = textObject,
 		Text = "",
-		FontFace = Font.fromName("Cairo",Enum.FontWeight.Regular, Enum.FontStyle.Normal),
+		FontFace = Font.fromName("Ubuntu",Enum.FontWeight.Regular, Enum.FontStyle.Normal),
 		TextColor3 = Color3.fromRGB(30,30,30),
 		TextSize = 22,
 		Position = UDim2.new(0,-44,0,0),
