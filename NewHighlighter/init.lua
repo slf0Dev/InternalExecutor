@@ -92,7 +92,7 @@ function Highlighter._getLabelingInfo(textObject: types.TextObject)
 		return
 	end
 
-	local src = utility.convertTabsToSpaces(utility.removeControlChars(textObject.Text))
+	local src = textObject.Text
 
 	local numLines = #string.split(src, "\n")
 	if numLines == 0 then
@@ -141,7 +141,7 @@ end
 function Highlighter._populateLabels(props: types.HighlightProps)
 	-- Gather props
 	local textObject = props.textObject
-	local src = utility.convertTabsToSpaces(utility.removeControlChars(props.src or textObject.Text))
+	local src = props.src or textObject.Text
 	local lexer = props.lexer or Highlighter.defaultLexer
 	local customLang = props.customLang
 	local forceUpdate = props.forceUpdate
@@ -258,7 +258,7 @@ end
 ]]
 function Highlighter.buildRichTextLines(props: types.BuildRichTextLinesProps): { string }
 	-- Gather props
-	local src = utility.convertTabsToSpaces(utility.removeControlChars(props.src))
+	local src = props.src
 	local lexer = props.lexer or Highlighter.defaultLexer
 	local customLang = props.customLang
 	local idenColor = theme.getColor("iden")
@@ -309,7 +309,7 @@ end
 function Highlighter.highlight(props: types.HighlightProps): () -> ()
 	-- Gather props
 	local textObject = props.textObject
-	local src = utility.convertTabsToSpaces(utility.removeControlChars(props.src or textObject.Text))
+	local src = props.src or textObject.Text
 	local lexer = props.lexer or Highlighter.defaultLexer
 	local customLang = props.customLang
 

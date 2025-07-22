@@ -13,8 +13,22 @@ local Themes = _G.Themes
 local UI = {
     Instances = {},
     Theme = Themes.DarkDefault,
-    Active = true
+    Active = false,
+    Transparency = 0.1,
+    BlurEnabled = true
 }
+
+local Blur = false
+local DefaultBlurSize
+if game.Lighting:FindFirstChildOfClass("BlurEffect") then
+    Blur = game.Lighting:FindFirstChildOfClass("BlurEffect")
+    DefaultBlurSize = Blur.Size
+else
+    Blur = Instance.new("BlurEffect",game.Lighting)
+    Blur.Size = UI.Active and 16 or 0
+end
+
+Blur.Enabled = UI.BlurEnabled
 
 local function deepCopy(original)
 	local copy = {}
@@ -348,14 +362,24 @@ local Screengui = Create("ScreenGui", {
     ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 })
 
-InputService.InputBegan:Connect(function(input, busy)
-    if input.UserInputType == Enum.UserInputType.Keyboard and not busy and input.KeyCode == Enum.KeyCode.Semicolon then
-        UI.Active = not UI.Active
-        for i,Window in next,Screengui:GetChildren() do
-            if Window:IsA("CanvasGroup") then
-                Tween(Window,0.1,{GroupTransparency = UI.Active and 0 or 1})
+UI.SwapVisibility = function(val)
+    UI.Active = val or not UI.Active
+    for i,Window in next,Screengui:GetChildren() do
+        if Window:IsA("CanvasGroup") then
+            Tween(Window,0.1,{GroupTransparency = UI.Active and UI.Transparency or 1})
+            task.delay(0.1,function()
+                Window.Visible = UI.Active
+            end)
+            if Blur then
+                Tween(Blur,0.1,{Size = UI.Active and 16 or 0})
             end
         end
+    end
+end
+
+InputService.InputBegan:Connect(function(input, busy)
+    if input.UserInputType == Enum.UserInputType.Keyboard and not busy and input.KeyCode == Enum.KeyCode.Semicolon then
+        UI.SwapVisibility()
     end
 end)
 
@@ -366,7 +390,9 @@ function UI.CreateWindow(parameters : table)
         Size = parameters.Size or UDim2.new(0, 700, 0, 500),
         Position = parameters.Position or UDim2.new(0.5, 0, 0.5, 0),
         BackgroundColor3 = UI.Theme.Background,
+        GroupTransparency = UI.Active and UI.Transparency or 1,
         BorderSizePixel = 0,
+        Visible = UI.Active,
         CornerRadius = UDim.new(0, 10),
         Parent = Screengui,
         Pad = {
@@ -1026,7 +1052,6 @@ UI.InitLogs = function(parameters)
             ZIndex = 4
         })
 
-
         local msg = Create("TextLabel",{
             Parent = msgFrame,
             Name = "Message",
@@ -1043,7 +1068,7 @@ UI.InitLogs = function(parameters)
             TextYAlignment = Enum.TextYAlignment.Center,
             RichText = true,
             TextWrapped = true,
-            CornerRadius = UDim.new(0,8),
+            CornerRadius = UDim.new(0,5),
             Selectable = true,
             ZIndex = 1,
             Pad = {
@@ -1081,3 +1106,5 @@ local Logs = UI.CreateWindow({
 UI.InitLogs({
     Parent = Logs
 })
+
+
