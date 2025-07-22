@@ -43,7 +43,7 @@ end
 
 Themes.CurrentTheme = deepCopy(UI.Theme)
 local Highlighter = loadstring(readfile("InternalExecutor/NewHighlighter/init.lua"))()
-
+local Autocompletion = loadstring(Repository .. "Autocompletion/AutoCompletion.lua")()
 
 local function Observable(initialValue)
     local subscribers = {}
