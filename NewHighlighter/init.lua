@@ -346,7 +346,6 @@ function Highlighter.highlight(props: types.HighlightProps): () -> ()
 		Pad = {
 			Right = 6
 		},
-		LineHeight = 1.4
 	})
 
 	local LinesDivider = Create("Frame",{

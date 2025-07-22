@@ -304,6 +304,37 @@ local function createRipple(button, RippleColor)
 end
 
 
+UI.AddDefaultButton = function(parameters)
+    local Button = Create("TextButton",{
+        Parent = parameters.Parent,
+        BackgroundColor3 = parameters.Background,
+        BackgroundTransparency = 0.8,
+        CornerRadius = UDim.new(0,5),
+        Position = parameters.Position,
+        Size = parameters.Size,
+        Text = parameters.Text,
+        FontFace = parameters.Font,
+        TextColor3 = parameters.TextColor,
+        TextSize = parameters.FontSize,
+        ClipsDescendants = true
+    })
+
+    Button.MouseEnter:Connect(function()
+        Tween(Button,0.3,{BackgroundTransparency = 0.5})
+    end)
+
+    Button.MouseLeave:Connect(function()
+        Tween(Button,0.3,{BackgroundTransparency = 0.8})
+    end)
+
+    Button.MouseButton1Click:Connect(function()
+        createRipple(Button,parameters.RippleColor)
+        task.spawn(parameters.Callback)
+    end)
+
+    return Button;
+end
+
 if game.CoreGui:FindFirstChild("ExecutorUI") then
     game.CoreGui.ExecutorUI:Destroy()
 end
@@ -397,33 +428,6 @@ function UI.InitCodeEditor(parameters : table)
         }
     })
 
-    local ExecuteButton = Create("TextButton",{
-        Parent = CodeEditor,
-        BackgroundColor3 = UI.Theme.SubText,
-        BackgroundTransparency = 0.8,
-        CornerRadius = UDim.new(0,5),
-        Position = UDim2.new(0,16,1,14),
-        Size = UDim2.new(0,150,0,50),
-        Text = "Execute",
-        FontFace = UI.Theme.Fonts.Regular,
-        TextColor3 = UI.Theme.Text,
-        TextSize = 24,
-        ClipsDescendants = true
-    })
-
-    local ClearButton = Create("TextButton",{
-        Parent = CodeEditor,
-        BackgroundColor3 = UI.Theme.SubText,
-        BackgroundTransparency = 0.8,
-        CornerRadius = UDim.new(0,5),
-        Position = UDim2.new(0,182,1,14),
-        Size = UDim2.new(0,150,0,50),
-        Text = "Clear",
-        FontFace = UI.Theme.Fonts.Regular,
-        TextColor3 = UI.Theme.Text,
-        TextSize = 24,
-        ClipsDescendants = true
-    })
 
     local TabsNavigation = Create("Frame", {
         Name = "TabsNavigation",
@@ -489,7 +493,35 @@ function UI.InitCodeEditor(parameters : table)
         },
     })
 
-
+    local ExecuteButton = UI.AddDefaultButton({
+        Parent = CodeEditor,
+        Background = UI.Theme.SubText,
+        Text = "Execute",
+        Font = UI.Theme.Fonts.Regular,
+        TextColor = UI.Theme.Text,
+        FontSize = 24,
+        RippleColor = UI.Theme.Text,
+        Position = UDim2.new(0,16,1,14),
+        Size = UDim2.new(0,170,0,50),
+        Callback = function()
+            loadstring(CodeTextBox.Text)()
+        end
+    })
+    
+    local ClearButton = UI.AddDefaultButton({
+        Parent = CodeEditor,
+        Background = UI.Theme.SubText,
+        Text = "Clear Editor",
+        Font = UI.Theme.Fonts.Regular,
+        TextColor = UI.Theme.Text,
+        FontSize = 24,
+        RippleColor = UI.Theme.Danger,
+        Position = UDim2.new(0,202,1,14),
+        Size = UDim2.new(0,170,0,50),
+        Callback = function()
+            CodeTextBox.Text = ""
+        end
+    })
 
     local InputBox = CodeTextBox
 
@@ -823,36 +855,6 @@ function UI.InitCodeEditor(parameters : table)
     end)
 
 
-
-    ExecuteButton.MouseButton1Click:Connect(function()
-        createRipple(ExecuteButton,UI.Theme.Text)
-        task.spawn(function()
-            loadstring(CodeTextBox.Text)()
-        end)
-    end)
-
-    ExecuteButton.MouseEnter:Connect(function()
-        Tween(ExecuteButton,0.3,{BackgroundTransparency = 0.5})
-    end)
-
-    ExecuteButton.MouseLeave:Connect(function()
-        Tween(ExecuteButton,0.3,{BackgroundTransparency = 0.8})
-    end)
-
-
-    ClearButton.MouseButton1Click:Connect(function()
-        CodeTextBox.Text = ""
-        createRipple(ClearButton,UI.Theme.Danger)
-    end)
-
-    ClearButton.MouseEnter:Connect(function()
-        Tween(ClearButton,0.3,{BackgroundTransparency = 0.5; BackgroundColor3 = UI.Theme.Danger})
-    end)
-    
-    ClearButton.MouseLeave:Connect(function()
-        Tween(ClearButton,0.3,{BackgroundTransparency = 0.8; BackgroundColor3 = UI.Theme.SubText})
-    end)
-
     if not findExistingTabs() then
         Editor.AddTab("Tab1")
     end
@@ -879,21 +881,72 @@ UI.InitLogs = function(parameters)
     
     local http = game:GetService("HttpService")
     
+    -- Функция для преобразования сложных типов в строку
+    local function valueToString(value)
+        local valueType = typeof(value)
+        
+        if valueType == "Color3" then
+            return string.format("Color3(%d, %d, %d)", value.R * 255, value.G * 255, value.B * 255)
+        elseif valueType == "Vector3" then
+            return string.format("Vector3(%d, %d, %d)", value.X, value.Y, value.Z)
+        elseif valueType == "CFrame" then
+            return "CFrame(...)"  -- Упрощенное представление (можно расширить)
+        elseif valueType == "Instance" then
+            return value:GetFullName()  -- Например, "Workspace.Part"
+        else
+            return tostring(value)  -- Для number, string, boolean и других простых типов
+        end
+    end
     
+    -- Функция для рекурсивной обработки таблицы
+    local function processTable(tbl)
+        local processed = {}
+        for key, value in pairs(tbl) do
+            if typeof(value) == "table" then
+                processed[key] = processTable(value)  -- Рекурсия для вложенных таблиц
+            else
+                processed[key] = valueToString(value)
+            end
+        end
+        return processed
+    end
+    
+    -- Функция для обработки аргументов (работает с таблицами и одиночными значениями)
+    local function processArgs(...)
+        local args = {...}
+        local processedArgs = {}
+        
+        for i, arg in ipairs(args) do
+            if typeof(arg) == "table" then
+                -- Обрабатываем таблицу
+                local success, json = pcall(http.JSONEncode, http, processTable(arg))
+                if success then
+                    table.insert(processedArgs, json)
+                else
+                    -- Если JSONEncode не сработал, преобразуем вручную
+                    table.insert(processedArgs, valueToString(arg))
+                end
+            else
+                -- Одиночные значения (не таблицы)
+                table.insert(processedArgs, valueToString(arg))
+            end
+        end
+        
+        return unpack(processedArgs)
+    end
+    
+    -- Перехватываем warn, print, error
     if not getgenv().oldwarn then
-        getgenv().oldwarn = hookfunction(warn,function(...)
-            local str =  (typeof(...) == "table" and http:JSONEncode(...) or ...)
-            return getgenv().oldwarn((typeof(...) == "table" and string.sub(str,1,-1) or str))
+        getgenv().oldwarn = hookfunction(warn, function(...)
+            return getgenv().oldwarn(processArgs(...))
         end)
     
-        getgenv().oldprint = hookfunction(print,function(...)
-            local str =  (typeof(...) == "table" and http:JSONEncode(...) or ...)
-            return getgenv().oldprint((typeof(...) == "table" and string.sub(str,1,-1) or str))
+        getgenv().oldprint = hookfunction(print, function(...)
+            return getgenv().oldprint(processArgs(...))
         end)
     
-        getgenv().olderror = hookfunction(error,function(...)
-            local str =  (typeof(...) == "table" and http:JSONEncode(...) or ...)
-            return getgenv().olderror((typeof(...) == "table" and string.sub(str,1,-1) or str))
+        getgenv().olderror = hookfunction(error, function(...)
+            return getgenv().olderror(processArgs(...))
         end)
     end
 
@@ -931,7 +984,7 @@ UI.InitLogs = function(parameters)
             Name = "msg",
             Size = UDim2.new(1,-10,0,0),
             AutomaticSize = Enum.AutomaticSize.Y,
-            BackgroundTransparency = 0,
+            BackgroundTransparency = 1,
             GroupTransparency = 1,
             BackgroundColor3 = UI.Theme.SecondaryBackground,
             BorderSizePixel = 0,
@@ -960,7 +1013,7 @@ UI.InitLogs = function(parameters)
             Parent = msgFrame,
             Name = "TypeIcon",
             Size = UDim2.new(0,20,0,20),
-            Position = UDim2.new(0,0,0,0),
+            Position = UDim2.new(1,-28,0,6),
             BackgroundTransparency = 1,
             ImageTransparency = 0,
             ImageColor3 = Logs.MessageColors[Type][1],
@@ -969,15 +1022,16 @@ UI.InitLogs = function(parameters)
             ImageRectOffset = Logs.MessageColors[Type][3],
             ImageRectSize = Logs.MessageColors[Type][4],
             BackgroundColor3 = Color3.fromRGB(0,0,0),
-            CornerRadius = UDim.new(0,8)
+            CornerRadius = UDim.new(0,8),
+            ZIndex = 4
         })
 
 
         local msg = Create("TextLabel",{
             Parent = msgFrame,
             Name = "Message",
-            Size = UDim2.new(1,-40,0,0),
-            Position = UDim2.new(0,40,0,0),
+            Size = UDim2.new(1,0,0,0),
+            Position = UDim2.new(0,0,0,0),
             AutomaticSize = Enum.AutomaticSize.Y,
             BackgroundTransparency = 0,
             BackgroundColor3 = UI.Theme.SecondaryBackground,
@@ -991,64 +1045,16 @@ UI.InitLogs = function(parameters)
             TextWrapped = true,
             CornerRadius = UDim.new(0,8),
             Selectable = true,
-            ZIndex = 1
+            ZIndex = 1,
+            Pad = {
+                Top = 8,
+                Bottom = 8,
+                Left = 8,
+                Right = 8
+            }
         })
 
-        local fakemsg = Create("TextBox",{
-            Parent = msgFrame,
-            Name = "Message",
-            Size = UDim2.new(1,-40,0,0),
-            Position = UDim2.new(0,40,0,18),
-            AutomaticSize = Enum.AutomaticSize.Y,
-            BackgroundTransparency = 1,
-            TextSize = 18,
-            TextTransparency = 1,
-            Text = "",
-            FontFace = Font.fromId(12187365364),
-            TextXAlignment = Enum.TextXAlignment.Left,
-            TextYAlignment = Enum.TextYAlignment.Center,
-            RichText = true,
-            TextWrapped = true,
-            CornerRadius = UDim.new(0,8),
-            Selectable = true,
-            TextEditable = false,
-            ClearTextOnFocus = false,
-            ZIndex = 2
-        })
-
-
-        local CustomHighlight = Create("Frame",{
-            Parent = fakemsg,
-            Name = "CustomHighlight",
-            AnchorPoint = Vector2.new(0,0.5),
-            Size = UDim2.new(0,0,1,0),
-            Position = UDim2.new(0,-2,0.5,0),
-            BackgroundTransparency = 0.8,
-            BackgroundColor3 = UI.Theme.Accent,
-            ZIndex = -3
-        })
-
-        msg.Text = "| " .. os.date("%X").." |\n" .. '<font color="#' .. tostring(Logs.MessageColors[Type][1]:ToHex()) .. '">' .. message .. " </font>"
-        fakemsg.Text = message
-
-        msgFrame.InputBegan:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                if not fakemsg:IsFocused() then
-                    fakemsg:CaptureFocus()
-                end
-            end
-        end)
-
-        fakemsg.Focused:Connect(function()
-            fakemsg.CursorPosition = #fakemsg.Text + 1
-            fakemsg.SelectionStart = 1
-            Tween(CustomHighlight,0.1,{Size = UDim2.new(0,fakemsg.TextBounds.X + 4,0,fakemsg.TextBounds.Y + 4)})
-        end)
-
-        fakemsg.FocusLost:Connect(function()
-            Tween(CustomHighlight,0.1,{Size = UDim2.new(0,0,0,fakemsg.TextBounds.Y + 2)})
-        end)
-        print("newmsg")
+        msg.Text = "| " .. os.date("%X").." |\n\n" .. '<font color="#' .. tostring(Logs.MessageColors[Type][1]:ToHex()) .. '">' .. message .. " </font>"
     end
     LogService.MessageOut:Connect(function(message, messageType)
         Logs.Add(message, string.gsub(tostring(messageType),"Enum.MessageType.", ""))
@@ -1068,7 +1074,7 @@ UI.InitCodeEditor({
 
 local Logs = UI.CreateWindow({
     Title = "Logs",
-    Position = UDim2.new(0,32,0,32),
+    Position = UDim2.new(0,32,0,62),
     Size = UDim2.new(0,500,0.8,0)
 })
 
