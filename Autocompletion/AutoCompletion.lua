@@ -224,7 +224,7 @@ function CodeAutocomplete.init(languageModule)
 				end
 			end
 			
-			if input.KeyCode == Enum.KeyCode.Enter then
+			if input.KeyCode == Enum.KeyCode.Tab then
 				-- Убираем task.wait() и сразу применяем автодополнение
 				applySuggestion()
 			elseif input.KeyCode == Enum.KeyCode.Up then
