@@ -62,14 +62,33 @@ function CodeAutocomplete.init(languageModule)
 
 		-- Обновление выделения
 		local function updateSelection()
-			for i, child in ipairs(suggestionsFrame:GetChildren()) do
+			local children = suggestionsFrame:GetChildren()
+			for i, child in ipairs(children) do
 				if child:IsA("TextButton") then
-					child.BackgroundTransparency = i == currentSelection 
-						and 0.5
-						or 1
+					-- Сбрасываем цвет всех кнопок
+					child.BackgroundTransparency = 1
 				end
 			end
-		end	
+
+			-- Находим нужную кнопку по индексу currentSelection
+			local selectedBtn = nil
+			local btnIndex = 0
+			for _, child in ipairs(children) do
+				if child:IsA("TextButton") then
+					btnIndex = btnIndex + 1
+					if btnIndex == currentSelection then
+						selectedBtn = child
+						break
+					end
+				end
+			end
+
+			-- Применяем стиль к выбранной кнопке
+			if selectedBtn then
+				selectedBtn.BackgroundTransparency = 0      -- Белый текст
+				suggestionsFrame.CanvasPosition = selectedBtn.AbsolutePosition - suggestionsFrame.AbsolutePosition
+			end
+		end
 
 		-- Применение выбранного предложения
 		local function applySuggestion()
@@ -197,15 +216,23 @@ function CodeAutocomplete.init(languageModule)
 		-- Обработчик клавиш
 		local function handleInput(input, gameProcessed)
 			if not suggestionsFrame.Visible then return end
-
+			
+			local children = suggestionsFrame:GetChildren()
+			local btnCount = 0
+			for _, child in ipairs(children) do
+				if child:IsA("TextButton") then
+					btnCount = btnCount + 1
+				end
+			end
+			
 			if input.KeyCode == Enum.KeyCode.Tab then
 				-- Убираем task.wait() и сразу применяем автодополнение
 				applySuggestion()
 			elseif input.KeyCode == Enum.KeyCode.Up then
-				currentSelection = math.max(1, currentSelection - 1)
+				currentSelection = currentSelection > 1 and currentSelection - 1 or btnCount
 				updateSelection()
 			elseif input.KeyCode == Enum.KeyCode.Down then
-				currentSelection = math.min(#suggestionsFrame:GetChildren(), currentSelection + 1)
+				currentSelection = currentSelection < btnCount and currentSelection + 1 or 1
 				updateSelection()
 			elseif input.KeyCode == Enum.KeyCode.Return then
 				applySuggestion()

@@ -558,9 +558,11 @@ function UI.InitCodeEditor(parameters : table)
     local SuggestionsFrame = Create("Frame",{
         Parent = CodeTextBox,
         Position = UDim2.new(1,-200,0,150),
-        Size = UDim2.new(0,200,0,70),
+        Size = UDim2.new(0,200,0,100),
         Name = "SuggestionsFrame",
+        CornerRadius = UDim.new(0,5),
         BackgroundColor3 = UI.Theme.Background,
+        ClipsDescendants = true
     })
 
     local ListLayout = Create("UIListLayout",{
