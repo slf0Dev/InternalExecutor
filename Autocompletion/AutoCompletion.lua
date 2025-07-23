@@ -216,7 +216,7 @@ function CodeAutocomplete.init(languageModule)
 			suggestionsFrame.Visible = false
 		end)
 
-		return ChangeDetected
+		return toReturn
 	end
 
 	return CodeAutocomplete
