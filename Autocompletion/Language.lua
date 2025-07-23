@@ -1,7 +1,7 @@
 local language = {
 
 	keyword = {
-		["and"] = "and ",
+		["and"] = "and |",
 		["break"] = "break",
 		["continue"] = "continue",
 		["do"] = "do\n\t|\nend",
@@ -26,7 +26,7 @@ local language = {
 		["type"] = "type ",
 		["typeof"] = "typeof ",
 		["until"] = "until ",
-		["while"] = "while | do\n\t|\nend",
+		["while"] = "while | do\n\t \nend",
 	},
 
 	builtin = {
