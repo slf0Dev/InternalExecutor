@@ -50,7 +50,7 @@ function CodeAutocomplete.init(languageModule)
 		local currentSelection = 0
 		local lastSuggestions = {}
 		local lastPrefix = ""
-
+		local ToReturn = {}
 		-- Очистка предложений
 		local function clearSuggestions()
 			for _, child in ipairs(suggestionsFrame:GetChildren()) do
