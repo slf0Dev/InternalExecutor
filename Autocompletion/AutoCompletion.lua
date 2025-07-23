@@ -143,7 +143,7 @@ function CodeAutocomplete.init(languageModule)
 		end
 
 		-- Обработчик изменений текста
-		textBox:GetPropertyChangedSignal("Text"):Connect(function()
+		local ChangeDetected = function()
 			local cursorPos = textBox.CursorPosition
 			local text = textBox.Text
 
@@ -181,7 +181,7 @@ function CodeAutocomplete.init(languageModule)
 				clearSuggestions()
 				suggestionsFrame.Visible = false
 			end
-		end)
+		end
 
 		-- Обработчик клавиш
 		local function handleInput(input, gameProcessed)
@@ -207,13 +207,15 @@ function CodeAutocomplete.init(languageModule)
 		textBox.Focused:Connect(function()
 			if #textBox.Text > 0 then
 				-- Триггерим обновление предложений при фокусе
-				textBox.Text = textBox.Text
+				--textBox.Text = textBox.Text
 			end
 		end)
 
 		textBox.FocusLost:Connect(function()
 			suggestionsFrame.Visible = false
 		end)
+
+		return ChangeDetected
 	end
 
 	return CodeAutocomplete

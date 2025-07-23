@@ -1,7 +1,7 @@
 local function GetModule(Path)
 	return loadstring(game:HttpGet("https://raw.githubusercontent.com/slf0Dev/InternalExecutor/refs/heads/master/" .. Path))()
 end
-
+local Autocompletion = GetModule("Autocompletion/AutoCompletion.lua")
 local types = GetModule("NewHighlighter/types.lua")
 local utility = GetModule('NewHighlighter/utility.lua')
 local theme = GetModule("NewHighlighter/theme.lua")
@@ -373,7 +373,8 @@ function Highlighter.highlight(props: types.HighlightProps): () -> ()
 		CustomLang = customLang,
 	}
 	Highlighter._textObjectData[textObject] = data
-
+	local autocompletor = Autocompletion.init(GetModule("Autocompletion/Language.lua"))
+	local setup = autocompletor.setupTextBox(textObject, textObject.SuggestionsFrame, textObject.SuggestionTemplate)
 	-- Add a cleanup handler for this textObject
 	local connections: { [string]: RBXScriptConnection } = {}
 	local function cleanup()
@@ -398,6 +399,7 @@ function Highlighter.highlight(props: types.HighlightProps): () -> ()
 	end)
 	connections["TextChanged"] = textObject:GetPropertyChangedSignal("Text"):Connect(function()
 		Highlighter._populateLabels(props)
+		setup.ChangeDetected()
 		local _, count = textObject.Text:gsub("\n", "")
 		LinesCounter.Text = "1"  -- Очищаем счётчик перед заполнением
 		for c = 1, count do

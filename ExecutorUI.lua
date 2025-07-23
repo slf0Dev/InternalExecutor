@@ -13,7 +13,7 @@ local Themes = _G.Themes
 local UI = {
     Instances = {},
     Theme = Themes.DarkDefault,
-    Active = false,
+    Active = true,
     Transparency = 0.1,
     BlurEnabled = true
 }
@@ -42,8 +42,12 @@ local function deepCopy(original)
 end
 
 Themes.CurrentTheme = deepCopy(UI.Theme)
+
 local Highlighter = loadstring(readfile("InternalExecutor/NewHighlighter/init.lua"))()
-local Autocompletion = loadstring(Repository .. "Autocompletion/AutoCompletion.lua")()
+local Tokens = loadstring(game:HttpGet(Repository .. "Autocompletion/Language.lua"))()
+local Autocompletion = loadstring(game:HttpGet(Repository .. "Autocompletion/AutoCompletion.lua"))()
+
+Autocompletion = Autocompletion.init(Tokens)
 
 local function Observable(initialValue)
     local subscribers = {}
@@ -551,6 +555,33 @@ function UI.InitCodeEditor(parameters : table)
 
     local InputBox = CodeTextBox
 
+    local SuggestionsFrame = Create("Frame",{
+        Parent = CodeTextBox,
+        Position = UDim2.new(1,-200,0,150),
+        Size = UDim2.new(0,200,0,150),
+        Name = "SuggestionsFrame",
+        BackgroundColor3 = UI.Theme.SecondaryBackground,
+    })
+
+    local ListLayout = Create("UIListLayout",{
+        Parent = SuggestionsFrame,
+        Name = "ListLayout",
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        Padding = UDim.new(0,5),
+        FillDirection = Enum.FillDirection.Vertical
+    })
+
+    local SuggestionTemplate = Create("TextButton",{
+        Size = UDim2.new(1,0,0,30),
+        BackgroundTransparency = 1,
+        TextColor3 = UI.Theme.Text,
+        TextSize = 20,
+        FontFace = UI.Theme.Fonts.Regular,
+        Visible = false,
+        Parent = CodeTextBox,
+        Name = "SuggestionTemplate"
+    })
+
     Highlighter.highlight({
         textObject = CodeTextBox,
     })
@@ -694,16 +725,6 @@ function UI.InitCodeEditor(parameters : table)
     CodeTextBox:GetPropertyChangedSignal("CursorPosition"):Connect(function()
         updateSelection()
         updateCursor()
-    end)
-
-    InputService.InputBegan:Connect(function(input)
-        if input.KeyCode == Enum.KeyCode.Tab then
-            task.delay(0,function() 
-                task.defer(function()
-                    CodeTextBox.CursorPosition += 7
-                end)
-            end)
-        end
     end)
 
     local function OnTextBoxFocused()
@@ -976,18 +997,36 @@ UI.InitLogs = function(parameters)
         end)
     end
 
-
     local MessagesFrame = Create("ScrollingFrame",{
         Parent = parameters.Parent,
         Name = "MessagesFrame",
-        Size = UDim2.new(1, 0, 1, -40),
+        Size = UDim2.new(1, 0, 1, -100),
         Position = UDim2.new(0,0,0,40),
         BackgroundTransparency = 1,
         CanvasSize = UDim2.new(0,0,0,0),
-        ScrollBarThickness = 5,
         ScrollBarImageColor3 = UI.Theme.SubText,
         BorderSizePixel = 0,
         AutomaticCanvasSize = Enum.AutomaticSize.XY,
+        ScrollBarThickness = 2
+    })
+
+    local ClearLogsButton = UI.AddDefaultButton({
+        Parent = parameters.Parent,
+        Background = UI.Theme.SubText,
+        Text = "Clear Logs",
+        Font = UI.Theme.Fonts.Regular,
+        TextColor = UI.Theme.Text,
+        FontSize = 24,
+        RippleColor = UI.Theme.Text,
+        Position = UDim2.new(0,10,1,-50),
+        Size = UDim2.new(1,-10,0,50),
+        Callback = function()
+            for i,v in next,MessagesFrame:GetChildren() do
+                if v:IsA("CanvasGroup") then
+                    v:Destroy()
+                end
+            end
+        end
     })
     
     MessagesFrame:GetPropertyChangedSignal("AbsoluteCanvasSize"):Connect(function()
@@ -1008,7 +1047,7 @@ UI.InitLogs = function(parameters)
         local msgFrame = Create("CanvasGroup",{
             Parent = MessagesFrame,
             Name = "msg",
-            Size = UDim2.new(1,-10,0,0),
+            Size = UDim2.new(1,-4,0,0),
             AutomaticSize = Enum.AutomaticSize.Y,
             BackgroundTransparency = 1,
             GroupTransparency = 1,
