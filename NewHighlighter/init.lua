@@ -398,8 +398,10 @@ function Highlighter.highlight(props: types.HighlightProps): () -> ()
 		cleanup()
 	end)
 	connections["TextChanged"] = textObject:GetPropertyChangedSignal("Text"):Connect(function()
+		task.spawn(function()
+			setup.ChangeDetected()
+		end)
 		Highlighter._populateLabels(props)
-		setup.ChangeDetected()
 		local _, count = textObject.Text:gsub("\n", "")
 		LinesCounter.Text = "1"  -- Очищаем счётчик перед заполнением
 		for c = 1, count do
