@@ -50,6 +50,7 @@ function CodeAutocomplete.init(languageModule)
 		local currentSelection = 0
 		local lastSuggestions = {}
 		local lastPrefix = ""
+		local toReturn = {}
 
 		-- Очистка предложений
 		local function clearSuggestions()
@@ -143,7 +144,7 @@ function CodeAutocomplete.init(languageModule)
 		end
 
 		-- Обработчик изменений текста
-		local ChangeDetected = function()
+		toReturn.ChangeDetected = function()
 			local cursorPos = textBox.CursorPosition
 			local text = textBox.Text
 
