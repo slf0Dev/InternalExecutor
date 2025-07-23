@@ -558,9 +558,9 @@ function UI.InitCodeEditor(parameters : table)
     local SuggestionsFrame = Create("Frame",{
         Parent = CodeTextBox,
         Position = UDim2.new(1,-200,0,150),
-        Size = UDim2.new(0,200,0,150),
+        Size = UDim2.new(0,200,0,70),
         Name = "SuggestionsFrame",
-        BackgroundColor3 = UI.Theme.SecondaryBackground,
+        BackgroundColor3 = UI.Theme.Background,
     })
 
     local ListLayout = Create("UIListLayout",{
@@ -574,6 +574,7 @@ function UI.InitCodeEditor(parameters : table)
     local SuggestionTemplate = Create("TextButton",{
         Size = UDim2.new(1,0,0,30),
         BackgroundTransparency = 1,
+        BackgroundColor3 = UI.Theme.Accent,
         TextColor3 = UI.Theme.Text,
         TextSize = 20,
         FontFace = UI.Theme.Fonts.Regular,
@@ -714,6 +715,7 @@ function UI.InitCodeEditor(parameters : table)
 
 
         Tween(Cursor,0.1,{Position = UDim2.fromOffset(offsetX,offsetY)})
+        SuggestionsFrame.Position = UDim2.fromOffset(offsetX + 10,offsetY + 10)
         
 
         Cursor.Size = UDim2.new(0, 2, 0, lineHeight)

@@ -185,7 +185,9 @@ function CodeAutocomplete.init(languageModule)
 
 				suggestionsFrame.Visible = #lastSuggestions > 0
 				currentSelection = math.min(math.max(1, currentSelection), #lastSuggestions)
-				updateSelection()
+				task.defer(function()
+					updateSelection()
+				end)
 			elseif #prefix == 0 then
 				clearSuggestions()
 				suggestionsFrame.Visible = false
