@@ -50,7 +50,6 @@ function CodeAutocomplete.init(languageModule)
 		local currentSelection = 0
 		local lastSuggestions = {}
 		local lastPrefix = ""
-		local ToReturn = {}
 
 		-- Очистка предложений
 		local function clearSuggestions()
@@ -65,9 +64,9 @@ function CodeAutocomplete.init(languageModule)
 		local function updateSelection()
 			for i, child in ipairs(suggestionsFrame:GetChildren()) do
 				if child:IsA("TextButton") then
-					child.BackgroundColor3 = i == currentSelection 
-						and Color3.new(0.5, 0.5, 1) 
-						or Color3.new(1, 1, 1)
+					child.BackgroundTransparency = i == currentSelection 
+						and 0.5
+						or 1
 				end
 			end
 		end	
@@ -78,8 +77,9 @@ function CodeAutocomplete.init(languageModule)
 				local suggestion = lastSuggestions[currentSelection]
 				local cursorPos = textBox.CursorPosition
 				local text = textBox.Text
+				local ToReturn = {}
 
-				-- Находим начало и конец текущего слова (включая точки)
+				-- Находим границы слова (игнорируя \n)
 				local startPos = cursorPos
 				while startPos > 1 and text:sub(startPos-1, startPos-1):match("[%w_%.]") do
 					startPos = startPos - 1
@@ -90,40 +90,43 @@ function CodeAutocomplete.init(languageModule)
 					endPos = endPos + 1
 				end
 
-				-- Находим последнюю точку перед курсором
-				local lastDotPos = text:sub(1, cursorPos):reverse():find("%.")
-				if lastDotPos then
-					lastDotPos = cursorPos - lastDotPos + 1
+				-- Если курсор между строк, корректируем startPos
+				if startPos > 1 and text:sub(startPos-1, startPos-1) == "\n" then
+					startPos = cursorPos
+					while startPos <= #text and not text:sub(startPos, startPos):match("[%w_%.]") do
+						startPos = startPos + 1
+					end
 				end
 
-				-- Получаем текст для замены
-				local completion = suggestion.Completion
+				-- Остальная логика замены (как в предыдущем исправлении)
+				local lastDotPos = nil
+				for i = cursorPos, 1, -1 do
+					if text:sub(i, i) == "." then
+						lastDotPos = i
+						break
+					end
+				end
 
-				-- Определяем, что именно заменять
+				local completion = suggestion.Completion
 				local replaceStart, replaceEnd
 
 				if lastDotPos and suggestion.Text:find("%.") then
-					-- Если есть точка и токен содержит точку, заменяем только часть после последней точки
 					replaceStart = lastDotPos + 1
 					replaceEnd = endPos - 1
-
-					-- Для методов оставляем только часть после точки
 					local methodPart = suggestion.Text:match("%.(.+)$")
 					if methodPart then
 						completion = completion:match("%.(.+)$") or completion
 						completion = completion:gsub("^%(", ""):gsub("^%)", "")
 					end
 				else
-					-- Полная замена
 					replaceStart = startPos
 					replaceEnd = endPos - 1
 				end
-
-				-- Вставляем текст
+				
 				task.wait()
 				textBox.Text = text:sub(1, replaceStart - 1) .. completion .. text:sub(replaceEnd + 1)
 
-				-- Устанавливаем курсор
+				-- Курсор после вставки
 				local placeholderPos = completion:find("|")
 				if placeholderPos then
 					textBox.Text = textBox.Text:gsub("|", "")
@@ -140,13 +143,27 @@ function CodeAutocomplete.init(languageModule)
 			local cursorPos = textBox.CursorPosition
 			local text = textBox.Text
 
-			-- Находим текущее слово
+			-- Находим текущее слово (игнорируя переносы строк)
 			local startPos = cursorPos
 			while startPos > 1 and text:sub(startPos-1, startPos-1):match("[%w_%.]") do
 				startPos = startPos - 1
 			end
 
-			local prefix = text:sub(startPos, cursorPos)
+			local endPos = cursorPos
+			while endPos <= #text and text:sub(endPos, endPos):match("[%w_%.]") do
+				endPos = endPos + 1
+			end
+
+			-- Если курсор между строк, проверяем текущую строку
+			if startPos > 1 and text:sub(startPos-1, startPos-1) == "\n" then
+				-- Ищем начало слова после переноса строки
+				startPos = cursorPos
+				while startPos <= #text and not text:sub(startPos, startPos):match("[%w_%.]") do
+					startPos = startPos + 1
+				end
+			end
+
+			local prefix = text:sub(startPos, endPos - 1)
 
 			if #prefix > 0 and prefix ~= lastPrefix then
 				lastPrefix = prefix
