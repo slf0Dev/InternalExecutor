@@ -86,7 +86,6 @@ function CodeAutocomplete.init(languageModule)
 			-- Применяем стиль к выбранной кнопке
 			if selectedBtn then
 				selectedBtn.BackgroundTransparency = 0      -- Белый текст
-				suggestionsFrame.CanvasPosition = selectedBtn.AbsolutePosition - suggestionsFrame.AbsolutePosition
 			end
 		end
 

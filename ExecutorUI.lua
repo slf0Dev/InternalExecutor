@@ -555,17 +555,15 @@ function UI.InitCodeEditor(parameters : table)
 
     local InputBox = CodeTextBox
 
-    local SuggestionsFrame = Create("ScrollingFrame",{
+    local SuggestionsFrame = Create("Frame",{
         Parent = CodeTextBox,
         Position = UDim2.new(1,-200,0,150),
-        Size = UDim2.new(0,200,0,50),
+        Size = UDim2.new(0,200,0,0),
+        AutomaticSize = Enum.AutomaticSize.Y,
         Name = "SuggestionsFrame",
         CornerRadius = UDim.new(0,5),
         BackgroundColor3 = UI.Theme.Background,
         ClipsDescendants = true,
-        ScrollBarThickness = 0,
-        CanvasSize = UDim2.new(0,0,0,0),
-        AutomaticCanvasSize = Enum.AutomaticSize.Y
     })
 
     local ListLayout = Create("UIListLayout",{
