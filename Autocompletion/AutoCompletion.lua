@@ -50,7 +50,7 @@ function CodeAutocomplete.init(languageModule)
 		local currentSelection = 0
 		local lastSuggestions = {}
 		local lastPrefix = ""
-		local toReturn = {}
+		local ToReturn = {}
 
 		-- Очистка предложений
 		local function clearSuggestions()
@@ -70,11 +70,8 @@ function CodeAutocomplete.init(languageModule)
 						or Color3.new(1, 1, 1)
 				end
 			end
-		end
-		
-		-- Применение выбранного предложения
-		-- Применение выбранного предложения
-		-- Применение выбранного предложения
+		end	
+
 		-- Применение выбранного предложения
 		local function applySuggestion()
 			if currentSelection > 0 and currentSelection <= #lastSuggestions then
@@ -82,10 +79,15 @@ function CodeAutocomplete.init(languageModule)
 				local cursorPos = textBox.CursorPosition
 				local text = textBox.Text
 
-				-- Находим начало текущего слова (включая точки)
+				-- Находим начало и конец текущего слова (включая точки)
 				local startPos = cursorPos
 				while startPos > 1 and text:sub(startPos-1, startPos-1):match("[%w_%.]") do
 					startPos = startPos - 1
+				end
+
+				local endPos = cursorPos
+				while endPos <= #text and text:sub(endPos, endPos):match("[%w_%.]") do
+					endPos = endPos + 1
 				end
 
 				-- Находим последнюю точку перед курсором
@@ -103,48 +105,38 @@ function CodeAutocomplete.init(languageModule)
 				if lastDotPos and suggestion.Text:find("%.") then
 					-- Если есть точка и токен содержит точку, заменяем только часть после последней точки
 					replaceStart = lastDotPos + 1
-					replaceEnd = cursorPos
+					replaceEnd = endPos - 1
 
 					-- Для методов оставляем только часть после точки
 					local methodPart = suggestion.Text:match("%.(.+)$")
 					if methodPart then
 						completion = completion:match("%.(.+)$") or completion
-						-- Удаляем возможные скобки в начале, если они есть
 						completion = completion:gsub("^%(", ""):gsub("^%)", "")
 					end
 				else
 					-- Полная замена
 					replaceStart = startPos
-					replaceEnd = cursorPos
+					replaceEnd = endPos - 1
 				end
 
-				-- Удаляем табы перед вставкой
-				local i = replaceStart - 1
-				local tabsBefore = ""
-				while i >= 1 and text:sub(i, i) == "\t" do
-					tabsBefore = tabsBefore .. "\t"
-					i = i - 1
-				end
-
-				-- Вставляем текст (удаляем все табы перед вставкой)
+				-- Вставляем текст
 				task.wait()
-				textBox.Text = text:sub(1, i) .. completion .. text:sub(replaceEnd + 1)
-				textBox.Text = textBox.Text:gsub(replaceStart,"")
-				--textBox.Text = text:sub(1, i) .. completion .. text:sub(replaceEnd + 1)
+				textBox.Text = text:sub(1, replaceStart - 1) .. completion .. text:sub(replaceEnd + 1)
+
 				-- Устанавливаем курсор
 				local placeholderPos = completion:find("|")
 				if placeholderPos then
 					textBox.Text = textBox.Text:gsub("|", "")
-					textBox.CursorPosition = i + placeholderPos - 1
+					textBox.CursorPosition = replaceStart + placeholderPos - 1
 				else
-					textBox.CursorPosition = i + #completion + 1
+					textBox.CursorPosition = replaceStart + #completion
 				end
 			end
 			suggestionsFrame.Visible = false
 		end
-
+		
 		-- Обработчик изменений текста
-		toReturn.ChangeDetected = function()
+		ToReturn.ChangeDetected = function()
 			local cursorPos = textBox.CursorPosition
 			local text = textBox.Text
 
@@ -215,8 +207,7 @@ function CodeAutocomplete.init(languageModule)
 		textBox.FocusLost:Connect(function()
 			suggestionsFrame.Visible = false
 		end)
-
-		return toReturn
+		return ToReturn
 	end
 
 	return CodeAutocomplete
