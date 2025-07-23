@@ -555,14 +555,17 @@ function UI.InitCodeEditor(parameters : table)
 
     local InputBox = CodeTextBox
 
-    local SuggestionsFrame = Create("Frame",{
+    local SuggestionsFrame = Create("ScrollingFrame",{
         Parent = CodeTextBox,
         Position = UDim2.new(1,-200,0,150),
-        Size = UDim2.new(0,200,0,100),
+        Size = UDim2.new(0,200,0,50),
         Name = "SuggestionsFrame",
         CornerRadius = UDim.new(0,5),
         BackgroundColor3 = UI.Theme.Background,
-        ClipsDescendants = true
+        ClipsDescendants = true,
+        ScrollBarThickness = 0,
+        CanvasSize = UDim2.new(0,0,0,0),
+        AutomaticCanvasSize = Enum.AutomaticSize.Y
     })
 
     local ListLayout = Create("UIListLayout",{
@@ -574,12 +577,13 @@ function UI.InitCodeEditor(parameters : table)
     })
 
     local SuggestionTemplate = Create("TextButton",{
-        Size = UDim2.new(1,0,0,30),
+        Size = UDim2.new(1,0,0,22),
         BackgroundTransparency = 1,
         BackgroundColor3 = UI.Theme.Accent,
         TextColor3 = UI.Theme.Text,
         TextSize = 20,
         FontFace = UI.Theme.Fonts.Regular,
+        CornerRadius = UDim.new(0,5),
         Visible = false,
         Parent = CodeTextBox,
         Name = "SuggestionTemplate"
@@ -710,14 +714,14 @@ function UI.InitCodeEditor(parameters : table)
             font,
             Vector2.new(math.huge, math.huge)
         ).X
-        
 
         local offsetY = (#lines - 1) * (lineHeight)
+
         
 
 
         Tween(Cursor,0.1,{Position = UDim2.fromOffset(offsetX,offsetY)})
-        SuggestionsFrame.Position = UDim2.fromOffset(offsetX + 10,offsetY + 10)
+        Tween(SuggestionsFrame,0.05,{Position = UDim2.fromOffset(offsetX + 1,offsetY + CodeTextBox.TextSize + 2)})
         
 
         Cursor.Size = UDim2.new(0, 2, 0, lineHeight)
