@@ -77,7 +77,6 @@ function CodeAutocomplete.init(languageModule)
 				local suggestion = lastSuggestions[currentSelection]
 				local cursorPos = textBox.CursorPosition
 				local text = textBox.Text
-				local ToReturn = {}
 
 				-- Находим границы слова (игнорируя \n)
 				local startPos = cursorPos
