@@ -561,7 +561,6 @@ function UI.InitCodeEditor(parameters : table)
         Size = UDim2.new(0,200,0,0),
         AutomaticSize = Enum.AutomaticSize.Y,
         Name = "SuggestionsFrame",
-        CornerRadius = UDim.new(0,5),
         BackgroundColor3 = UI.Theme.Background,
         ClipsDescendants = true,
     })
@@ -570,18 +569,17 @@ function UI.InitCodeEditor(parameters : table)
         Parent = SuggestionsFrame,
         Name = "ListLayout",
         SortOrder = Enum.SortOrder.LayoutOrder,
-        Padding = UDim.new(0,5),
+        Padding = UDim.new(0,1),
         FillDirection = Enum.FillDirection.Vertical
     })
 
     local SuggestionTemplate = Create("TextButton",{
         Size = UDim2.new(1,0,0,22),
         BackgroundTransparency = 1,
-        BackgroundColor3 = UI.Theme.Accent,
+        BackgroundColor3 = UI.Theme.SubText,
         TextColor3 = UI.Theme.Text,
         TextSize = 20,
         FontFace = UI.Theme.Fonts.Regular,
-        CornerRadius = UDim.new(0,5),
         Visible = false,
         Parent = CodeTextBox,
         Name = "SuggestionTemplate"

@@ -85,7 +85,7 @@ function CodeAutocomplete.init(languageModule)
 
 			-- Применяем стиль к выбранной кнопке
 			if selectedBtn then
-				selectedBtn.BackgroundTransparency = 0      -- Белый текст
+				selectedBtn.BackgroundTransparency = 0.6      -- Белый текст
 			end
 		end
 
