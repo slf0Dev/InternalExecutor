@@ -225,7 +225,6 @@ function CodeAutocomplete.init(languageModule)
 			end
 			
 			if input.KeyCode == Enum.KeyCode.Tab then
-				-- Убираем task.wait() и сразу применяем автодополнение
 				applySuggestion()
 			elseif input.KeyCode == Enum.KeyCode.Up then
 				currentSelection = currentSelection > 1 and currentSelection - 1 or btnCount
