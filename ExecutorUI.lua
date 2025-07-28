@@ -366,11 +366,21 @@ local Screengui = Create("ScreenGui", {
     ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 })
 
+
+local BackgroundDarken = Create("Frame",{
+    Parent = Screengui,
+    Size = UDim2.new(1,0,1,0),
+    BackgroundColor3 = Color3.fromRGB(0,0,0),
+    BackgroundTransparency = 0.5,
+    ZIndex = 100
+})
+
 UI.SwapVisibility = function(val)
     UI.Active = val or not UI.Active
     for i,Window in next,Screengui:GetChildren() do
         if Window:IsA("CanvasGroup") then
             Tween(Window,0.1,{GroupTransparency = UI.Active and UI.Transparency or 1})
+            Tween(BackgroundDarken,0.1,{BackgroundTransparency = UI.Active and 0.5 or 1})
             task.delay(0.1,function()
                 Window.Visible = UI.Active
             end)
@@ -404,7 +414,8 @@ function UI.CreateWindow(parameters : table)
             Bottom = 16,
             Left = 16,
             Right = 16
-        }
+        },
+        ZIndex = 101
     })
 
     local TitleBar = Create("Frame", {
@@ -671,7 +682,6 @@ function UI.InitCodeEditor(parameters : table)
         return size.X
     end
     
-    local TextService = game:GetService("TextService")
 
     local function updateCursor()
         local cursorPos = TextBox.CursorPosition
@@ -732,6 +742,7 @@ function UI.InitCodeEditor(parameters : table)
     end)
 
     local function OnTextBoxFocused()
+        Cursor.Visible = true
         while TextBox:IsFocused() do
             CursorDebounce = not CursorDebounce
             Tween(Cursor,0.5,{BackgroundTransparency = (CursorDebounce and 1 or 0)})
@@ -810,10 +821,10 @@ function UI.InitCodeEditor(parameters : table)
         end
     end)
 
-    CodeTextBox.Focused:Connect(function()
-        OnTextBoxFocused() 
+    CodeTextBox.Focused:Connect(OnTextBoxFocused)
+    CodeTextBox.FocusLost:Connect(function()
+        Cursor.Visible = false   
     end)
-
 
     Editor.UpdateTabs = function()
         for _, tab in pairs(Editor.Tabs) do
